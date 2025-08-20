@@ -1,0 +1,21 @@
+{
+    "name": "sp-api",
+    "type": "module",
+    "private": false,
+    "devDependencies": {
+        "@commitlint/cli": "^19.8.1",
+        "@commitlint/config-conventional": "^19.8.1",
+        "@types/bun": "latest",
+        "husky": "^9.1.7",
+        "vitepress": "^1.6.4"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    },
+    "scripts": {
+        "docs:dev": "vitepress dev docs",
+        "docs:build": "vitepress build docs",
+        "docs:preview": "vitepress preview docs",
+        "prepare": "husky"
+    }
+}

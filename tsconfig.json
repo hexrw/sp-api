@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
+		"strictNullChecks": true,
+        "types": ["@types/bun"]
+	},
+	"include": ["*.config.*"]
+}
