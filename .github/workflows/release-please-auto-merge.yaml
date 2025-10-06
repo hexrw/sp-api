@@ -3,6 +3,7 @@ name: release-please-auto-merge
 on:
   pull_request:
     types:
+      - opened
       - labeled
       - reopened
       - ready_for_review

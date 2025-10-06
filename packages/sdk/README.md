@@ -26,6 +26,14 @@ npm install @selling-partner-api/sdk
 bun add @selling-partner-api/sdk
 ```
 
+Pair the SDK with the published models package whenever you need direct access to the full OpenAPI schema or type metadata:
+
+```bash
+npm install @selling-partner-api/models
+# or
+bun add @selling-partner-api/models
+```
+
 ## Usage
 
 ### Create a client instance
