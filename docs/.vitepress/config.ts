@@ -5,6 +5,7 @@ export default defineConfig({
 	description: "Community-driven knowledge, SDK docs, and runbooks for the Amazon Selling Partner API.",
 	cleanUrls: true,
 	lastUpdated: true,
+	base: "/selling-partner-api/",
 	head: [["meta", { name: "theme-color", content: "#0d9488" }]],
 	themeConfig: {
 		siteTitle: "SP-API",
@@ -60,7 +61,7 @@ export default defineConfig({
 						{ text: "Rate Limits", link: "/troubleshooting/rate-limits" },
 					],
 				},
-		],
+			],
 		},
 		socialLinks: [{ icon: "github", link: "https://github.com/selling-partner-api/selling-partner-api" }],
 		editLink: {
