@@ -14,6 +14,33 @@ const repoRoot = resolve(packageRoot, "..", "..")
 const SOURCE_DIR = resolve(repoRoot, "vendor/selling-partner-api-models/models")
 const OUTPUT_DIR = resolve(packageRoot, "src")
 
+const AWS_ACCESS_KEY_PATTERN = /\b(?:A3T|AKIA|ASIA|AGPA|AIDA|ABIA|ACCA|ADIA|ANPA|ANVA|AROA|ANPA)[0-9A-Z]{16}\b/g
+const AWS_CREDENTIAL_QUERY_PATTERN = /(X-Amz-Credential=)([A-Z0-9]{20})/g
+const AWS_PLACEHOLDER = "AWSACCESSKEYIDREDACTED"
+
+const sanitizeAwsCredentials = <T>(value: T): T => {
+    if (typeof value === "string") {
+        const sanitized = value
+            .replace(AWS_CREDENTIAL_QUERY_PATTERN, (_, prefix) => `${prefix}${AWS_PLACEHOLDER}`)
+            .replace(AWS_ACCESS_KEY_PATTERN, AWS_PLACEHOLDER)
+        return sanitized as unknown as T
+    }
+
+    if (Array.isArray(value)) {
+        return value.map((item) => sanitizeAwsCredentials(item)) as unknown as T
+    }
+
+    if (value && typeof value === "object") {
+        const entries = Object.entries(value as Record<string, unknown>).map(([key, val]) => [
+            key,
+            sanitizeAwsCredentials(val),
+        ])
+        return Object.fromEntries(entries) as T
+    }
+
+    return value
+}
+
 if (!existsSync(SOURCE_DIR)) {
     throw new Error(
         `Expected vendor models at ${SOURCE_DIR}. Ensure the git submodule vendor/selling-partner-api-models is initialised.`
@@ -72,14 +99,17 @@ if (isErrorResult(mergeResult)) {
     console.error(`${mergeResult.message} (${mergeResult.type})`)
 } else {
     console.log(`Merge successful!`)
+
+    const sanitizedSpec = sanitizeAwsCredentials(mergeResult.output)
+
     // Write the result to ./dist/merged.json, overwriting it if it exists, creating it if it doesn't
     const outputPath = resolve(OUTPUT_DIR, "merged.json")
-    await Bun.write(outputPath, JSON.stringify(mergeResult.output, null, 2))
+    await Bun.write(outputPath, JSON.stringify(sanitizedSpec, null, 2))
     console.log(`Merged OpenAPI specs written to ${outputPath}`)
 
     // Generate TypeScript OpenAPI paths for use in client
     console.log("Generating OpenAPI TypeScript paths AST")
-    const ast = await openapiTs(mergeResult.output as any, {
+    const ast = await openapiTs(sanitizedSpec as any, {
         alphabetize: true,
         emptyObjectsUnknown: true,
     })
