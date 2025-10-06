@@ -12,8 +12,8 @@
     },
     "scripts": {
         "lint": "bun run --cwd packages/sdk typecheck",
-        "build": "bun run --cwd packages/selling-partner-api-models build && bun run --cwd packages/sdk build",
-        "build:models": "bun run --cwd packages/selling-partner-api-models build",
+    "build": "bun run --cwd packages/models build && bun run --cwd packages/sdk build",
+    "build:models": "bun run --cwd packages/models build",
         "build:sdk": "bun run --cwd packages/sdk build",
         "test": "bun test",
         "docs:dev": "vitepress dev docs",
