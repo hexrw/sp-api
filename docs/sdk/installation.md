@@ -16,6 +16,16 @@ npm install @selling-partner-api/sdk
 
 The package ships as pure ESM. If you rely on CommonJS, convert your project or use dynamic `import()` calls.
 
+Need direct access to the raw OpenAPI surface? Install the published models package alongside the SDK:
+
+```bash
+bun add @selling-partner-api/models
+# or
+npm install @selling-partner-api/models
+```
+
+This dependency exposes both the generated `paths.ts` TypeScript definitions and the merged OpenAPI document (`import merged from "@selling-partner-api/models/merged.json"`).
+
 ### Installing from GitHub Packages
 
 GitHub Packages mirrors the same builds published to npm. To install directly from GitHub, add the scope-specific registry to your `.npmrc`:

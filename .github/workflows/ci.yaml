@@ -43,10 +43,11 @@ jobs:
 
       - name: Generate coverage badge
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: tj-actions/coverage-badge@v3
+        uses: tj-actions/coverage-badge-js@v2
         with:
-          coverage-input-file: coverage/coverage-summary.json
-          badge-path: docs/assets/coverage-badge.svg
+          output_path: docs/assets/coverage-badge.svg
+          path: docs/assets/coverage-badge.svg
+          report_path: coverage/coverage-summary.json
 
       - name: Commit coverage badge
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'

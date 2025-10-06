@@ -3,22 +3,36 @@
     "version": "0.1.0",
     "description": "Workspace package that consolidates Amazon Selling Partner API models into a single merged schema.",
     "type": "module",
-    "private": true,
     "license": "MIT",
     "packageManager": "bun@1.2.23",
     "engines": {
         "bun": ">=1.2.0",
         "node": ">=22.0.0"
     },
+    "files": [
+        "README.md",
+        "package.json",
+        "src",
+        "scripts"
+    ],
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
+    },
     "scripts": {
         "models:update": "./scripts/pull.sh",
         "build": "bun run scripts/build.ts"
     },
     "exports": {
+        ".": {
+            "types": "./src/paths.ts",
+            "import": "./src/paths.ts"
+        },
         "./paths": {
             "types": "./src/paths.ts",
             "import": "./src/paths.ts"
-        }
+        },
+        "./merged.json": "./src/merged.json"
     },
     "devDependencies": {
         "bun-types": "latest",

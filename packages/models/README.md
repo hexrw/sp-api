@@ -1,6 +1,19 @@
 # @selling-partner-api/models
 
-This internal workspace package merges the upstream [amzn/selling-partner-api-models](https://github.com/amzn/selling-partner-api-models) repository into a single OpenAPI surface and TypeScript definition set that powers the SDK package.
+This package merges the upstream [amzn/selling-partner-api-models](https://github.com/amzn/selling-partner-api-models) repository into a single OpenAPI surface and TypeScript definition set that powers the SDK package.
+
+## Installation
+
+```bash
+bun add @selling-partner-api/models
+# or
+npm install @selling-partner-api/models
+```
+
+Detailed paths and schemas are available directly from the published artefacts:
+
+- `import { paths } from "@selling-partner-api/models"`
+- `import * as merged from "@selling-partner-api/models/merged.json"`
 
 The upstream repository is tracked as a git submodule under `vendor/selling-partner-api-models`. Run the helper script below to ensure it is initialised before building:
 

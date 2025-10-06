@@ -54,7 +54,7 @@ Set the map back to its original value when you exit tests to avoid leaking conf
 
 ## Inspecting generated models
 
-All operations and models live in the `@selling-partner-api/models` workspace. Import schemas or paths if you need to validate payloads or render forms:
+All operations and models live in the published `@selling-partner-api/models` package. Import schemas or paths if you need to validate payloads or render forms:
 
 ```ts
 import { notifications, paths as notificationPaths } from "@selling-partner-api/models"

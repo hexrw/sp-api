@@ -1,10 +1,11 @@
 {
-    "name": "@selling-partner-api/field-guide",
+    "name": "selling-partner-api",
     "type": "module",
     "private": true,
     "packageManager": "bun@1.2.23",
     "workspaces": [
-        "packages/*"
+        "packages/*",
+        "docs"
     ],
     "engines": {
         "bun": ">=1.2.0",

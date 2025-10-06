@@ -4,6 +4,12 @@
     "include-component-in-tag": false,
     "pull-request-header": "chore: release",
     "packages": {
+        "packages/models": {
+            "component": "models",
+            "package-name": "@selling-partner-api/models",
+            "tag-template": "models-v${version}",
+            "changelog-path": "CHANGELOG.md"
+        },
         "packages/sdk": {
             "component": "sdk",
             "package-name": "@selling-partner-api/sdk",

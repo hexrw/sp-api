@@ -15,6 +15,60 @@ env:
   NPM_TOKEN: ${{ secrets.NPM_SECRET }}
 
 jobs:
+  publish-models:
+    if: startsWith(github.event.release.tag_name, 'models-')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.2.23"
+
+      - name: Setup Node for npm publish
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build models package
+        run: bun run build:models
+
+      - name: Verify npm token configured
+        run: |
+          if [ -z "${NPM_TOKEN:-}" ]; then
+            echo "NPM_SECRET secret must be configured in the repository settings" >&2
+            exit 1
+          fi
+
+      - name: Publish @selling-partner-api/models to npm
+        run: |
+          cd packages/models
+          export NODE_AUTH_TOKEN="${NPM_TOKEN}"
+          npm publish --provenance --access public
+
+      - name: Setup Node for GitHub Packages publish
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@selling-partner-api"
+
+      - name: Publish @selling-partner-api/models to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd packages/models
+          npm publish --provenance --access public
+
   publish:
     if: startsWith(github.event.release.tag_name, 'sdk-')
     runs-on: ubuntu-latest
