@@ -14,14 +14,14 @@ import { fileURLToPath } from "node:url"
 
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 const packageRoot = resolve(scriptDir, "..")
-const modelsPackageRoot = resolve(packageRoot, "..", "selling-partner-api-models")
+const modelsPackageRoot = resolve(packageRoot, "..", "models")
 
 const OPENAPI_FILE = resolve(modelsPackageRoot, "src/merged.json")
 const RATE_LIMITS_FILE = resolve(packageRoot, "src/assets/rate-limits.json")
 const DEST_FILE = resolve(packageRoot, "src/lib/rate-limit/path.ts")
 
 if (!existsSync(OPENAPI_FILE)) {
-    throw new Error(`Missing merged OpenAPI specification at ${OPENAPI_FILE}. Run bun run --cwd packages/selling-partner-api-models build first.`)
+    throw new Error(`Missing merged OpenAPI specification at ${OPENAPI_FILE}. Run bun run --cwd packages/models build first.`)
 }
 
 // Load input files
