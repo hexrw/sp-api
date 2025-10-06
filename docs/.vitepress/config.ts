@@ -35,6 +35,7 @@ export default defineConfig({
 						{ text: "Authentication", link: "/sdk/authentication" },
 						{ text: "Usage Examples", link: "/sdk/usage" },
 						{ text: "Advanced Guides", link: "/sdk/advanced" },
+						{ text: "Releasing & Publishing", link: "/sdk/releasing" },
 						{ text: "Testing & Tooling", link: "/sdk/testing" },
 					],
 				},

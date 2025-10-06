@@ -8,7 +8,9 @@
       "component": "sdk",
       "package-name": "@selling-partner/sdk",
       "tag-template": "sdk-v${version}",
-      "changelog-path": "packages/sdk/CHANGELOG.md"
+      "changelog-path": "packages/sdk/CHANGELOG.md",
+      "prerelease": true,
+      "prerelease-type": "beta"
     }
   }
 }

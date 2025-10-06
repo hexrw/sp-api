@@ -43,18 +43,26 @@ jobs:
       - name: Run unit tests
         run: bun test packages/sdk
 
+      - name: Ensure beta prerelease version
+        run: |
+          VERSION=$(node -p "require('./packages/sdk/package.json').version")
+          if [[ ${VERSION} != *-beta* ]]; then
+            echo "Expected @selling-partner/sdk version to include '-beta' but found ${VERSION}" >&2
+            exit 1
+          fi
+
+      - name: Log package version
+        run: node -p "require('./packages/sdk/package.json').version"
+
       - name: Verify npm token configured
         run: |
           if [ -z "${NPM_TOKEN:-}" ]; then
             echo "NPM_TOKEN secret must be configured in the repository settings" >&2
             exit 1
           fi
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @selling-partner/sdk to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           cd packages/sdk
-          npm publish --provenance --access public
+          export NODE_AUTH_TOKEN="${NPM_TOKEN}"
+          npm publish --provenance --access public --tag beta
