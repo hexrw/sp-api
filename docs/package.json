@@ -1,0 +1,17 @@
+{
+    "name": "@selling-partner-api/docs",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vitepress dev",
+        "build": "vitepress build",
+        "preview": "vitepress preview"
+    },
+    "devDependencies": {
+        "vitepress": "^1.6.4"
+    },
+    "engines": {
+        "bun": ">=1.2.0",
+        "node": ">=22.0.0"
+    }
+}

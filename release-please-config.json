@@ -2,13 +2,19 @@
     "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
     "release-type": "node",
     "include-component-in-tag": false,
-    "pull-request-header": "chore: release",
     "packages": {
         "packages/models": {
             "component": "models",
             "package-name": "@selling-partner-api/models",
             "tag-template": "models-v${version}",
-            "changelog-path": "CHANGELOG.md"
+            "changelog-path": "CHANGELOG.md",
+            "extra-files": [
+                {
+                    "type": "json",
+                    "path": "packages/sdk/package.json",
+                    "jsonpath": "$.dependencies['@selling-partner-api/models']"
+                }
+            ]
         },
         "packages/sdk": {
             "component": "sdk",

@@ -29,8 +29,8 @@
         "clean": "rm -rf dist",
         "generate:limits": "bun run scripts/generate-limits.ts",
         "build": "bun run clean && bun run generate:limits && tsc --project tsconfig.build.json",
-    "typecheck": "tsc --noEmit",
-    "test": "bunx vitest"
+        "typecheck": "tsc --noEmit",
+        "test": "bunx vitest"
     },
     "exports": {
         ".": {
@@ -43,7 +43,7 @@
         }
     },
     "dependencies": {
-    "@selling-partner-api/models": "workspace:^",
+        "@selling-partner-api/models": "^0.2.0",
         "limiter": "^3.0.0",
         "openapi-fetch": "^0.14.0"
     },

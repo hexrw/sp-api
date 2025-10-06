@@ -1,11 +1,14 @@
 import { defineConfig } from "vitepress"
 
+const defaultBase = "/selling-partner-api/"
+const base = normalizeBase(process.env.DOCS_BASE_PATH ?? defaultBase)
+
 export default defineConfig({
 	title: "Unofficial SP-API Field Guide",
 	description: "Community-driven knowledge, SDK docs, and runbooks for the Amazon Selling Partner API.",
 	cleanUrls: true,
 	lastUpdated: true,
-	base: "/selling-partner-api/",
+	base,
 	head: [["meta", { name: "theme-color", content: "#0d9488" }]],
 	themeConfig: {
 		siteTitle: "SP-API",
@@ -74,3 +77,10 @@ export default defineConfig({
 		},
 	},
 })
+
+function normalizeBase(value: string) {
+	if (!value) return defaultBase
+	const trimmed = value.trim()
+	const prefixed = trimmed.startsWith("/") ? trimmed : `/${trimmed}`
+	return prefixed.endsWith("/") ? prefixed : `${prefixed}/`
+}
