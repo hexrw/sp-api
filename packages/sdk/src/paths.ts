@@ -1,1 +1,1 @@
-export type { paths, components, operations } from "@selling-partner/api-models/paths"
+export type { paths, components, operations } from "@selling-partner-api/api-models/paths"

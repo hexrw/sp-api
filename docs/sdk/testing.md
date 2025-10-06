@@ -6,7 +6,7 @@ Reliable SP-API integrations need automated coverage. The SDK ships helpers and 
 
 ```ts
 import { describe, expect, it, mock } from "bun:test"
-import { Region, SpApi } from "@selling-partner/sdk"
+import { Region, SpApi } from "@selling-partner-api/sdk"
 
 const mockFetch = mock(async () =>
   new Response(JSON.stringify({ reportId: "r123" }), {

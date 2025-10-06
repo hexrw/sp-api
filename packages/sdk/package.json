@@ -1,5 +1,5 @@
 {
-    "name": "@selling-partner/sdk",
+    "name": "@selling-partner-api/sdk",
     "version": "2.0.0-beta.0",
     "description": "Amazon Selling Partner API JavaScript client/SDK with full type coverage.",
     "type": "module",
@@ -12,10 +12,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/hexrw/sp-api.git",
+        "url": "https://github.com/selling-partner-api/selling-partner-api.git",
         "directory": "packages/sdk"
     },
-    "homepage": "https://github.com/hexrw/sp-api/tree/main/packages/sdk#readme",
+    "homepage": "https://github.com/selling-partner-api/selling-partner-api/tree/main/packages/sdk#readme",
     "main": "./dist/index.js",
     "module": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -43,7 +43,7 @@
         }
     },
     "dependencies": {
-        "@selling-partner/api-models": "workspace:*",
+    "@selling-partner-api/api-models": "workspace:*",
         "limiter": "^3.0.0",
         "openapi-fetch": "^0.14.0"
     },

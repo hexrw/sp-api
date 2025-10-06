@@ -6,7 +6,7 @@
   "packages": {
     "packages/sdk": {
       "component": "sdk",
-      "package-name": "@selling-partner/sdk",
+  "package-name": "@selling-partner-api/sdk",
       "tag-template": "sdk-v${version}",
       "changelog-path": "packages/sdk/CHANGELOG.md",
       "prerelease": true,

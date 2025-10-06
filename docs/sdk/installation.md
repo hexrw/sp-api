@@ -9,9 +9,9 @@ Before installing the SDK, make sure your toolchain meets the following minimum 
 ## Add the dependency
 
 ```bash
-bun add @selling-partner/sdk
+bun add @selling-partner-api/sdk
 # or, if you are still on npm
-npm install @selling-partner/sdk
+npm install @selling-partner-api/sdk
 ```
 
 The package ships as pure ESM. If you rely on CommonJS, convert your project or use dynamic `import()` calls.
@@ -51,7 +51,7 @@ If you publish your own packages from the same repository, consume the SDK via t
 ```json
 {
   "dependencies": {
-    "@selling-partner/sdk": "workspace:*"
+  "@selling-partner-api/sdk": "workspace:*"
   }
 }
 ```

@@ -1,4 +1,4 @@
-# @selling-partner/api-models
+# @selling-partner-api/api-models
 
 This internal workspace package merges the upstream [amzn/selling-partner-api-models](https://github.com/amzn/selling-partner-api-models) repository into a single OpenAPI surface and TypeScript definition set that powers the SDK package.
 

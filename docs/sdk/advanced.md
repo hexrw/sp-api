@@ -7,7 +7,7 @@ The SDK ships with sensible defaults, but you can tune rate limiting, endpoints,
 Each schema path is throttled with a `TokenBucket` seeded from `packages/sdk/src/assets/rate-limits.json`. You can override buckets per operation when you have higher quotas or want stricter enforcement:
 
 ```ts
-import { Region, SpApi, TokenBucket } from "@selling-partner/sdk"
+import { Region, SpApi, TokenBucket } from "@selling-partner-api/sdk"
 
 const client = new SpApi({
   clientId: "...",
@@ -37,7 +37,7 @@ The default rate limiter provisions buckets on-demand. When Amazon returns updat
 Use the static maps on `SpApi` to inspect and override endpoints:
 
 ```ts
-import { Region, SpApi } from "@selling-partner/sdk"
+import { Region, SpApi } from "@selling-partner-api/sdk"
 
 const endpoint = SpApi.Endpoint[Region.FE]
 
@@ -54,10 +54,10 @@ Set the map back to its original value when you exit tests to avoid leaking conf
 
 ## Inspecting generated models
 
-All operations and models live in the `@selling-partner/api-models` workspace. Import schemas or paths if you need to validate payloads or render forms:
+All operations and models live in the `@selling-partner-api/api-models` workspace. Import schemas or paths if you need to validate payloads or render forms:
 
 ```ts
-import { notifications, paths as notificationPaths } from "@selling-partner/api-models"
+import { notifications, paths as notificationPaths } from "@selling-partner-api/api-models"
 
 console.log(notifications.components.schemas.CreateDestinationResponse)
 console.log(notificationPaths["/notifications/v1/destinations"].post)

@@ -5,7 +5,7 @@ Amazon requires Login With Amazon (LWA) and Selling Partner API (SP-API) credent
 ## Required inputs
 
 ```ts
-import { SpApi, Region } from "@selling-partner/sdk"
+import { SpApi, Region } from "@selling-partner-api/sdk"
 
 const client = new SpApi({
   clientId: process.env.SP_CLIENT_ID!,
@@ -24,7 +24,7 @@ const client = new SpApi({
 Some endpoints (for example, the Notifications API) support grantless operations. Instantiate `LwaClient` directly and pass it to `SpApi`:
 
 ```ts
-import { LwaClient, SpApi, Region } from "@selling-partner/sdk"
+import { LwaClient, SpApi, Region } from "@selling-partner-api/sdk"
 
 const lwa = new LwaClient(
   process.env.SP_CLIENT_ID!,

@@ -7,7 +7,7 @@ This repository ships the SDK to npm automatically whenever a GitHub release wit
 1. You bump the version in `packages/sdk/package.json`. Keep the existing semantic version and append a `-beta.x` suffix (for example, `2.0.0-beta.0`).  
 2. Commit the change and merge it into `main`.  
 3. Create a GitHub release that tags the repository with `sdk-v<version>` (for example, `sdk-v2.0.0-beta.0`). Mark the release as a pre-release in the GitHub UI if you create it manually.  
-4. The `publish-sdk` GitHub Action runs automatically. It builds the SDK, runs tests, confirms the version contains `-beta`, and publishes to npm with the `beta` dist-tag (`npm install @selling-partner/sdk@beta`).
+4. The `publish-sdk` GitHub Action runs automatically. It builds the SDK, runs tests, confirms the version contains `-beta`, and publishes to npm with the `beta` dist-tag (`npm install @selling-partner-api/sdk@beta`).
 
 The workflow will fail if the version string does not include `-beta`, preventing accidental stable releases.
 

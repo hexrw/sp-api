@@ -1,5 +1,5 @@
 {
-    "name": "@hexrw/sp-api-monorepo",
+    "name": "@selling-partner-api/field-guide",
     "type": "module",
     "private": true,
     "packageManager": "bun@1.2.23",

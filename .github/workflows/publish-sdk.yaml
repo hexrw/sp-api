@@ -50,7 +50,7 @@ jobs:
         run: |
           VERSION=$(node -p "require('./packages/sdk/package.json').version")
           if [[ ${VERSION} != *-beta* ]]; then
-            echo "Expected @selling-partner/sdk version to include '-beta' but found ${VERSION}" >&2
+            echo "Expected @selling-partner-api/sdk version to include '-beta' but found ${VERSION}" >&2
             exit 1
           fi
 
@@ -64,7 +64,7 @@ jobs:
             exit 1
           fi
 
-      - name: Publish @selling-partner/sdk to npm
+      - name: Publish @selling-partner-api/sdk to npm
         run: |
           cd packages/sdk
           export NODE_AUTH_TOKEN="${NPM_TOKEN}"

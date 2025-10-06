@@ -62,9 +62,9 @@ export default defineConfig({
 				},
 		],
 		},
-		socialLinks: [{ icon: "github", link: "https://github.com/hexrw/sp-api" }],
+		socialLinks: [{ icon: "github", link: "https://github.com/selling-partner-api/selling-partner-api" }],
 		editLink: {
-			pattern: "https://github.com/hexrw/sp-api/edit/main/docs/:path",
+			pattern: "https://github.com/selling-partner-api/selling-partner-api/edit/main/docs/:path",
 			text: "Suggest changes",
 		},
 		footer: {

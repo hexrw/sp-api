@@ -1,5 +1,5 @@
 {
-    "name": "@selling-partner/api-models",
+    "name": "@selling-partner-api/api-models",
     "version": "0.1.0",
     "description": "Workspace package that consolidates Amazon Selling Partner API models into a single merged schema.",
     "type": "module",

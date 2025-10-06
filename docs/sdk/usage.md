@@ -5,7 +5,7 @@ With the SDK installed and authenticated, you can invoke any Selling Partner API
 ## Basic request
 
 ```ts
-import { SpApi, Region } from "@selling-partner/sdk"
+import { SpApi, Region } from "@selling-partner-api/sdk"
 
 const client = new SpApi({
   clientId: process.env.SP_CLIENT_ID!,
@@ -30,7 +30,7 @@ Every method mirrors the SP-API REST path structure. For instance, `client.order
 The `paginate` utility wraps cursor-based endpoints and yields typed pages:
 
 ```ts
-import { paginate, Region, SpApi } from "@selling-partner/sdk"
+import { paginate, Region, SpApi } from "@selling-partner-api/sdk"
 
 const client = new SpApi({ /* ...auth */ })
 
@@ -48,7 +48,7 @@ Pass additional request parameters as the second argument. The iterator automati
 Errors throw subclasses of `SpError`. You can inspect the HTTP status, error payload, and request metadata:
 
 ```ts
-import { SpResponseError } from "@selling-partner/sdk"
+import { SpResponseError } from "@selling-partner-api/sdk"
 
 try {
   await client.reports.getReport({ reportId: "foo" })
@@ -64,10 +64,10 @@ Enable debug logging via `DEBUG=sp-api:*` to surface raw response details when t
 
 ## Marketplace shortcuts
 
-`@selling-partner/sdk/utils` exposes curated helpers:
+`@selling-partner-api/sdk/utils` exposes curated helpers:
 
 ```ts
-import { getMarketplaceByCountryCode } from "@selling-partner/sdk/utils"
+import { getMarketplaceByCountryCode } from "@selling-partner-api/sdk/utils"
 
 const marketplace = getMarketplaceByCountryCode("GB")
 

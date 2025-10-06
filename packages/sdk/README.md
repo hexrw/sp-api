@@ -21,9 +21,9 @@ This SDK can only run server-side. For one, Selling Partner API does not support
 ## Install
 
 ```bash
-npm install @selling-partner/sdk
+npm install @selling-partner-api/sdk
 # or
-bun add @selling-partner/sdk
+bun add @selling-partner-api/sdk
 ```
 
 ## Usage
@@ -31,7 +31,7 @@ bun add @selling-partner/sdk
 ### Create a client instance
 
 ```ts
-import { SpApi, Region } from "@selling-partner/sdk"
+import { SpApi, Region } from "@selling-partner-api/sdk"
 
 const client = new SpApi({
     clientId: "amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
@@ -45,7 +45,7 @@ const client = new SpApi({
 
 ```ts
 // Example request - get a list of 'GET_MERCHANT_LISTINGS_ALL_DATA' reports
-import { SpApi, Marketplace } from "@selling-partner/sdk"
+import { SpApi, Marketplace } from "@selling-partner-api/sdk"
 
 /*
  * Response is automatically typed based on the OpenAPI schema provided by Amazon.
@@ -78,7 +78,7 @@ const { reports } = await client.get("/reports/2021-06-30/reports", {
 **Note**: The wrapper doesn't offer full coverage of the SP-API. It's only meant to make common requests easier.
 
 ```ts
-import { Marketplace } from "@selling-partner/sdk"
+import { Marketplace } from "@selling-partner-api/sdk"
 
 const orders = await client.getOrders({
     marketplaceIds: [Marketplace.UK],

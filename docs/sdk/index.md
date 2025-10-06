@@ -1,6 +1,6 @@
 # SDK Overview
 
-Welcome to the home for the `@selling-partner/sdk` JavaScript/TypeScript client. This section explains how the SDK is versioned, what environments it supports, and the workflows we ship to keep releases healthy.
+Welcome to the home for the `@selling-partner-api/sdk` JavaScript/TypeScript client. This section explains how the SDK is versioned, what environments it supports, and the workflows we ship to keep releases healthy.
 
 ## Why this SDK
 

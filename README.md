@@ -43,7 +43,7 @@ bun run docs:dev
 
 ### Workspace layout
 
--   `packages/sdk` – the TypeScript runtime SDK published to npm as `@selling-partner/sdk`.
+-   `packages/sdk` – the TypeScript runtime SDK published to npm as `@selling-partner-api/sdk`.
 -   `packages/selling-partner-api-models` – merges upstream API models into a single OpenAPI document and `paths.ts` file.
 -   `vendor/selling-partner-api-models` – git submodule pointing to [amzn/selling-partner-api-models](https://github.com/amzn/selling-partner-api-models).
 -   `.github/workflows` – automation for syncing models, validating builds, running release-please, and publishing to npm.
@@ -59,7 +59,7 @@ bun run docs:dev
 
 1. Create an npm automation token with the `publish` scope: <https://www.npmjs.com/settings/{your-organization}/tokens>.
 2. In this repository, add a GitHub Actions secret called `NPM_TOKEN` with that token value.
-3. (Optional) If you need to publish under an organization scope, ensure the automation token has the correct team permissions and that the package `@selling-partner/sdk` is owned by that account.
+3. (Optional) If you need to publish under an organization scope, ensure the automation token has the correct team permissions and that the package `@selling-partner-api/sdk` is owned by that account.
 
 Once configured, merging a release PR from release-please will tag `sdk-vX.Y.Z` and the `publish-sdk` workflow will push the build to npm automatically.
 
