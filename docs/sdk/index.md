@@ -17,7 +17,7 @@ The repository uses [release-please](https://github.com/google-github-actions/re
 2. CI (`ci.yaml`) runs bun-based builds and tests on every PR and push.
 3. Approved dependency patches are auto-merged; everything else requires a human review.
 4. Once merged to `main`, `release-please.yaml` tags `sdk-vX.Y.Z` and records changes in `packages/sdk/CHANGELOG.md`.
-5. The `publish-sdk.yaml` workflow publishes the package to npm (after the `NPM_TOKEN` secret is configured).
+5. The `publish-sdk.yaml` workflow publishes the package to npm (after the `NPM_SECRET` secret is configured).
 
 ## Supported runtimes
 

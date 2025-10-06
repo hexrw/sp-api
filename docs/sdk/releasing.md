@@ -37,7 +37,7 @@ Following these steps keeps the automated pipeline intact while making it explic
 
 The publish workflow expects two authentication sources:
 
-- `NPM_TOKEN` – an npm automation token with **publish** scope for the `@selling-partner-api` organization. This is used when pushing to `registry.npmjs.org`.
+- `NPM_SECRET` – an npm automation token with **publish** scope for the `@selling-partner-api` organization. This is used when pushing to `registry.npmjs.org`.
 - `GITHUB_TOKEN` – automatically provided to GitHub Actions and granted `packages:write` permission by the workflow. It authenticates the publish to `npm.pkg.github.com`.
 
 For local publishing or testing against GitHub Packages, create an `.npmrc` entry matching the docs from [GitHub Packages ↗](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-npm-registry):

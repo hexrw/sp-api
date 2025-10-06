@@ -53,12 +53,12 @@ bun run docs:dev
 -   **Nightly model sync** (`sync-models.yml`) updates the submodule, rebuilds the merged OpenAPI artefacts, regenerates rate-limits, and opens a release PR when changes land.
 -   **Automated releases** via [`release-please`](https://github.com/google-github-actions/release-please) keep the changelog, tags, and npm versioning in sync.
 -   **CI** runs on every push/PR using Bun 1.2.x to ensure builds and tests stay green.
--   **Publish workflow** releases the SDK to npm whenever a `sdk-v*` GitHub release is published (requires the `NPM_TOKEN` secret).
+-   **Publish workflow** releases the SDK to npm whenever a `sdk-v*` GitHub release is published (requires the `NPM_SECRET` secret).
 
 ### Preparing npm publish automation
 
 1. Create an npm automation token with the `publish` scope: <https://www.npmjs.com/settings/{your-organization}/tokens>.
-2. In this repository, add a GitHub Actions secret called `NPM_TOKEN` with that token value.
+2. In this repository, add a GitHub Actions secret called `NPM_SECRET` with that token value.
 3. (Optional) If you need to publish under an organization scope, ensure the automation token has the correct team permissions and that the package `@selling-partner-api/sdk` is owned by that account.
 
 Once configured, merging a release PR from release-please will tag `sdk-vX.Y.Z` and the `publish-sdk` workflow will push the build to npm automatically.

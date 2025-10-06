@@ -11,7 +11,7 @@ permissions:
   id-token: write
 
 env:
-  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+  NPM_TOKEN: ${{ secrets.NPM_SECRET }}
 
 jobs:
   publish:
@@ -61,7 +61,7 @@ jobs:
       - name: Verify npm token configured
         run: |
           if [ -z "${NPM_TOKEN:-}" ]; then
-            echo "NPM_TOKEN secret must be configured in the repository settings" >&2
+            echo "NPM_SECRET secret must be configured in the repository settings" >&2
             exit 1
           fi
 
