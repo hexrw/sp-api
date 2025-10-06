@@ -1,0 +1,3 @@
+[submodule "vendor/selling-partner-api-models"]
+	path = vendor/selling-partner-api-models
+	url = https://github.com/amzn/selling-partner-api-models.git

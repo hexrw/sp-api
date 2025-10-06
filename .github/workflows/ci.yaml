@@ -1,0 +1,33 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: "1.2.23"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build workspace packages
+        run: bun run build
+
+      - name: Run unit tests with coverage
+        run: bun test --coverage

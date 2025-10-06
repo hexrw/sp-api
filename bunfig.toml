@@ -1,0 +1,8 @@
+[workspace]
+members = ["packages/*"]
+
+[install]
+peer = true
+save-text-lockfile = true
+[test]
+cover = true

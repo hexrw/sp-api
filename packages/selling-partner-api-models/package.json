@@ -1,0 +1,36 @@
+{
+    "name": "@selling-partner/api-models",
+    "version": "0.1.0",
+    "description": "Workspace package that consolidates Amazon Selling Partner API models into a single merged schema.",
+    "type": "module",
+    "private": true,
+    "license": "MIT",
+    "packageManager": "bun@1.2.23",
+    "engines": {
+        "bun": ">=1.2.0",
+        "node": ">=22.0.0"
+    },
+    "scripts": {
+        "models:update": "./scripts/pull.sh",
+        "build": "bun run scripts/build.ts"
+    },
+    "exports": {
+        "./paths": {
+            "types": "./src/paths.ts",
+            "import": "./src/paths.ts"
+        }
+    },
+    "devDependencies": {
+        "bun-types": "latest",
+        "@types/swagger2openapi": "^7.0.4",
+        "openapi-typescript": "^7.8.0",
+        "swagger2openapi": "^7.0.8"
+    },
+    "peerDependencies": {
+        "typescript": "^5.0.0"
+    },
+    "dependencies": {
+        "atlassian-openapi": "^1.0.21",
+        "openapi-merge": "^1.3.3"
+    }
+}

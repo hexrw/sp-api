@@ -1,0 +1,75 @@
+name: sync-models
+
+on:
+  schedule:
+    - cron: "0 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Configure git author
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Update Amazon models submodule
+        run: |
+          git submodule update --init vendor/selling-partner-api-models
+          git submodule update --remote --depth 1 vendor/selling-partner-api-models
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: "1.2.23"
+
+      - name: Install workspace dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Rebuild merged OpenAPI surfaces
+        run: bun run build:models
+
+      - name: Regenerate SDK artefacts
+        run: bun run build:sdk
+
+      - name: Determine if changes exist
+        id: diff
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit updated artefacts
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git add -A
+          git status
+          git commit -m "chore: sync selling-partner models" || echo "No staged changes"
+
+      - name: Push changes
+        if: steps.diff.outputs.changed == 'true'
+        run: git push
+
+      - name: Trigger release sweep
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'release-please.yaml',
+              ref: context.ref.replace('refs/heads/', '') || 'main'
+            })

@@ -1,0 +1,61 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "daily"
+      time: "05:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase-if-necessary
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+    groups:
+      runtime:
+        applies-to: version-updates
+        patterns:
+          - "bun"
+          - "bun-types"
+          - "typescript"
+      tooling:
+        applies-to: version-updates
+        patterns:
+          - "vitepress"
+          - "husky"
+          - "@commitlint/*"
+  - package-ecosystem: "npm"
+    directory: "/packages/sdk"
+    schedule:
+      interval: "daily"
+      time: "05:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase-if-necessary
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+  - package-ecosystem: "npm"
+    directory: "/packages/selling-partner-api-models"
+    schedule:
+      interval: "daily"
+      time: "05:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase-if-necessary
+    commit-message:
+      prefix: "deps"
+      prefix-development: "deps-dev"
+      include: "scope"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "sunday"
+      time: "04:00"
+      timezone: "UTC"
+    commit-message:
+      prefix: "deps"
+      include: "scope"

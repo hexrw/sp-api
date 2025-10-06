@@ -1,21 +1,33 @@
 {
-    "name": "sp-api",
+    "name": "@hexrw/sp-api-monorepo",
     "type": "module",
-    "private": false,
+    "private": true,
+    "packageManager": "bun@1.2.23",
+    "workspaces": [
+        "packages/*"
+    ],
+    "engines": {
+        "bun": ">=1.2.0",
+        "node": ">=22.0.0"
+    },
+    "scripts": {
+        "build": "bun run --cwd packages/selling-partner-api-models build && bun run --cwd packages/sdk build",
+        "build:models": "bun run --cwd packages/selling-partner-api-models build",
+        "build:sdk": "bun run --cwd packages/sdk build",
+        "test": "bun test",
+        "docs:dev": "vitepress dev docs",
+        "docs:build": "vitepress build docs",
+        "docs:preview": "vitepress preview docs",
+        "prepare": "husky"
+    },
     "devDependencies": {
         "@commitlint/cli": "^19.8.1",
-        "@commitlint/config-conventional": "^19.8.1",
-        "@types/bun": "latest",
+    "@commitlint/config-conventional": "^19.8.1",
+    "bun-types": "latest",
         "husky": "^9.1.7",
         "vitepress": "^1.6.4"
     },
     "peerDependencies": {
         "typescript": "^5"
-    },
-    "scripts": {
-        "docs:dev": "vitepress dev docs",
-        "docs:build": "vitepress build docs",
-        "docs:preview": "vitepress preview docs",
-        "prepare": "husky"
     }
 }

@@ -1,0 +1,29 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "allowSyntheticDefaultImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "noUncheckedIndexedAccess": true,
+        "strictNullChecks": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+        "resolveJsonModule": true,
+        "sourceMap": true,
+        "outDir": "dist",
+        "rootDir": "src",
+        "declaration": true,
+        "declarationMap": true,
+        "noEmit": false
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "exclude": [
+        "src/**/*.spec.ts",
+        "dist",
+        "node_modules"
+    ]
+}

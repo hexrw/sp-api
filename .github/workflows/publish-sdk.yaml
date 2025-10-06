@@ -1,0 +1,60 @@
+name: publish-sdk
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+jobs:
+  publish:
+    if: startsWith(github.event.release.tag_name, 'sdk-')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: "1.2.23"
+
+      - name: Setup Node for npm publish
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build SDK package
+        run: bun run build:sdk
+
+      - name: Run unit tests
+        run: bun test packages/sdk
+
+      - name: Verify npm token configured
+        run: |
+          if [ -z "${NPM_TOKEN:-}" ]; then
+            echo "NPM_TOKEN secret must be configured in the repository settings" >&2
+            exit 1
+          fi
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @selling-partner/sdk to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd packages/sdk
+          npm publish --provenance --access public
