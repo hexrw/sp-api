@@ -38,7 +38,7 @@ updates:
       prefix-development: "deps-dev"
       include: "scope"
   - package-ecosystem: "npm"
-    directory: "/packages/selling-partner-api-models"
+    directory: "/packages/models"
     schedule:
       interval: "daily"
       time: "05:00"

@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  packages: write
   id-token: write
 
 env:
@@ -68,4 +69,18 @@ jobs:
         run: |
           cd packages/sdk
           export NODE_AUTH_TOKEN="${NPM_TOKEN}"
+          npm publish --provenance --access public --tag beta
+
+      - name: Setup Node for GitHub Packages publish
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@selling-partner-api"
+
+      - name: Publish @selling-partner-api/sdk to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd packages/sdk
           npm publish --provenance --access public --tag beta

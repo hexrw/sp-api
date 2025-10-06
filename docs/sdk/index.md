@@ -1,6 +1,6 @@
 # SDK Overview
 
-Welcome to the home for the `@selling-partner-api/sdk` JavaScript/TypeScript client. This section explains how the SDK is versioned, what environments it supports, and the workflows we ship to keep releases healthy.
+Welcome to the home for the `@selling-partner-api/sdk` JavaScript/TypeScript client. This section explains how the SDK is versioned, what environments it supports, and the workflows we ship to keep releases healthy. Every beta build is available from both npm (`npm install @selling-partner-api/sdk@beta`) and [GitHub Packages](https://github.com/orgs/selling-partner-api/packages?repo-name=selling-partner-api).
 
 ## Why this SDK
 

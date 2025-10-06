@@ -43,8 +43,8 @@ bun run docs:dev
 
 ### Workspace layout
 
--   `packages/sdk` – the TypeScript runtime SDK published to npm as `@selling-partner-api/sdk`.
--   `packages/selling-partner-api-models` – merges upstream API models into a single OpenAPI document and `paths.ts` file.
+-   `packages/sdk` – the TypeScript runtime SDK published to npm and GitHub Packages as `@selling-partner-api/sdk`.
+-   `packages/models` – merges upstream API models into a single OpenAPI document and `paths.ts` file.
 -   `vendor/selling-partner-api-models` – git submodule pointing to [amzn/selling-partner-api-models](https://github.com/amzn/selling-partner-api-models).
 -   `.github/workflows` – automation for syncing models, validating builds, running release-please, and publishing to npm.
 

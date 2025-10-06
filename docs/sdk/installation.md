@@ -16,6 +16,17 @@ npm install @selling-partner-api/sdk
 
 The package ships as pure ESM. If you rely on CommonJS, convert your project or use dynamic `import()` calls.
 
+### Installing from GitHub Packages
+
+GitHub Packages mirrors the same builds published to npm. To install directly from GitHub, add the scope-specific registry to your `.npmrc`:
+
+```ini
+@selling-partner-api:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}
+```
+
+Then install with any npm-compatible client (npm, pnpm, yarn, bun). Set `NODE_AUTH_TOKEN` to a personal access token that has `packages:read` permission for the `selling-partner-api` organization.
+
 ## Workspace layout
 
 When cloning this repository, the SDK lives in `packages/sdk`. The root uses Bun workspaces, so the following commands install everything in one go:

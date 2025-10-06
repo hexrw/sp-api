@@ -8,4 +8,4 @@ The reports API allows you to create, schedule, browse, retrieve and cancel repo
 
 # Troubleshooting
 
-- [Rate Limits](../../troubleshooting/rate-limits#reports)
+- [Rate Limits](../troubleshooting/rate-limits#reports)
