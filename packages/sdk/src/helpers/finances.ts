@@ -1,6 +1,6 @@
 import type { SpApi, SpClient } from "../core"
 import { SpResponseError } from "../lib/errors"
-import type { operations } from "../paths"
+import type { paths } from "../paths"
 
 const FINANCIAL_EVENTS_PATH = "/finances/v0/financialEvents" as const
 
@@ -14,11 +14,13 @@ type OperationResponse<T> = T extends { responses: infer Responses }
         }[keyof Responses]
     : never
 
-type OperationQueryParams<T> = T extends { parameters: { query: infer Query } } ? Query : Record<string, never>
-
-type GetFinancialEventsOperation = operations["getFinancialEvents"]
+type GetFinancialEventsOperation = paths[typeof FINANCIAL_EVENTS_PATH]["get"]
 type GetFinancialEventsResponse = OperationResponse<GetFinancialEventsOperation>
-type GetFinancialEventsQuery = OperationQueryParams<GetFinancialEventsOperation>
+type GetFinancialEventsQuery = {
+    NextToken?: string
+    MaxResultsPerPage?: number
+    [key: string]: unknown
+}
 
 type IterateOptions = {
     pageSize?: number
@@ -44,7 +46,8 @@ export class FinancesClient {
             params: { query },
         })
         if (error) throw error
-        if (!data) throw new SpResponseError("Empty response from getFinancialEvents", response?.status ?? 500)
+    const status = (response as Response | undefined)?.status ?? 500
+    if (!data) throw new SpResponseError("Empty response from getFinancialEvents", status)
         return data
     }
 
@@ -67,7 +70,8 @@ export class FinancesClient {
             })
 
             if (error) throw error
-            if (!data) throw new SpResponseError("Empty response from getFinancialEvents", response?.status ?? 500)
+            const status = (response as Response | undefined)?.status ?? 500
+            if (!data) throw new SpResponseError("Empty response from getFinancialEvents", status)
 
             const rateLimitHeader = response?.headers?.get("x-amzn-ratelimit-limit")
             const rateLimit = rateLimitHeader ? Number.parseFloat(rateLimitHeader) : undefined
@@ -75,7 +79,7 @@ export class FinancesClient {
             yield {
                 payload: data.payload,
                 rateLimit,
-                statusCode: response?.status,
+                statusCode: (response as Response | undefined)?.status,
             }
 
             nextToken = data.payload?.NextToken ?? undefined
