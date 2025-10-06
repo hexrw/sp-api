@@ -4,6 +4,7 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -45,7 +46,7 @@ jobs:
         run: bun run build:sdk
 
       - name: Run unit tests
-        run: bun test packages/sdk
+        run: bunx vitest run --coverage
 
       - name: Ensure beta prerelease version
         run: |

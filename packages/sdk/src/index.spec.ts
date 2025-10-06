@@ -1,8 +1,8 @@
-import { describe, test, expect } from "bun:test"
+import { describe, it, expect } from "vitest"
 import * as sdk from "./index"
 
 describe("sp-sdk", () => {
-    test("exports something", () => {
+    it("exports something", () => {
         expect(sdk).toBeDefined()
     })
 })

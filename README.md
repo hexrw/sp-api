@@ -1,5 +1,10 @@
 # SP-API
 
+[![npm](https://img.shields.io/npm/v/%40selling-partner-api%2Fsdk?label=@selling-partner-api%2Fsdk&color=cb3837)](https://www.npmjs.com/package/@selling-partner-api/sdk)
+[![CI](https://github.com/selling-partner-api/selling-partner-api/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/selling-partner-api/selling-partner-api/actions/workflows/ci.yaml)
+[![Publish](https://github.com/selling-partner-api/selling-partner-api/actions/workflows/publish-sdk.yaml/badge.svg?branch=main)](https://github.com/selling-partner-api/selling-partner-api/actions/workflows/publish-sdk.yaml)
+![Coverage](https://raw.githubusercontent.com/selling-partner-api/selling-partner-api/main/docs/assets/coverage-badge.svg)
+
 _**Unofficial** knowledge and resource base for the **Amazon Selling Partner API (SP-API)**._
 
 _Real-world tips, gotchas, links and patterns._
@@ -52,6 +57,7 @@ bun run docs:dev
 
 -   **Nightly model sync** (`sync-models.yml`) updates the submodule, rebuilds the merged OpenAPI artefacts, regenerates rate-limits, and opens a release PR when changes land.
 -   **Automated releases** via [`release-please`](https://github.com/google-github-actions/release-please) keep the changelog, tags, and npm versioning in sync.
+-   **Release PR auto-merge** automatically lands `autorelease: pending` pull requests so Dependabot patches flow straight to published betas.
 -   **CI** runs on every push/PR using Bun 1.2.x to ensure builds and tests stay green.
 -   **Publish workflow** releases the SDK to npm whenever a `sdk-v*` GitHub release is published (requires the `NPM_SECRET` secret).
 

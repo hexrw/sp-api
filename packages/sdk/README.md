@@ -155,7 +155,7 @@ const orders = await client.getOrders({
 {
     "scripts": {
         "build": "bun run --cwd packages/sdk build",
-        "test": "bun test"
+        "test": "bunx vitest"
     }
 }
 
@@ -163,7 +163,7 @@ const orders = await client.getOrders({
 {
     "scripts": {
         "build": "bun run clean && bun run generate:limits && tsc --project tsconfig.build.json",
-        "test": "bun test"
+        "test": "bunx vitest"
     }
 }
 ```
@@ -177,7 +177,7 @@ bun run --cwd packages/sdk build
 ### Test
 
 ```bash
-bun test packages/sdk
+bunx vitest run
 ```
 
 ## License

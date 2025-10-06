@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   test:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -33,4 +34,23 @@ jobs:
         run: bun run build
 
       - name: Run unit tests with coverage
-        run: bun test --coverage
+        run: bunx vitest run --coverage
+
+      - name: Ensure coverage badge directory exists
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          mkdir -p docs/assets
+
+      - name: Generate coverage badge
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: tj-actions/coverage-badge@v3
+        with:
+          coverage-input-file: coverage/coverage-summary.json
+          badge-path: docs/assets/coverage-badge.svg
+
+      - name: Commit coverage badge
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update coverage badge [skip ci][skip release]"
+          file_pattern: docs/assets/coverage-badge.svg
