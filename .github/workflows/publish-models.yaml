@@ -4,51 +4,24 @@ on:
   release:
     types:
       - published
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Existing models tag or ref to publish"
-        required: true
 
 permissions:
   contents: read
   packages: write
   id-token: write
 
-env:
-  NPM_TOKEN: ${{ secrets.NPM_SECRET }}
-  TAG_NAME: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.tag || (github.event_name == 'release' && github.event.release.tag_name) }}
-
 jobs:
   publish:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'release' && (
-        startsWith(github.event.release.tag_name, '@selling-partner-api/models@') ||
-        startsWith(github.event.release.tag_name, 'models-v') ||
-        startsWith(github.event.release.tag_name, 'models/v')
-      ))
+    # Only run for models releases
+    if: startsWith(github.event.release.tag_name, '@selling-partner-api/models@')
     runs-on: ubuntu-latest
     steps:
-      - name: Resolve tag
-        run: |
-          if [ -z "${TAG_NAME:-}" ]; then
-            echo "TAG_NAME could not be determined" >&2
-            exit 1
-          fi
-
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          ref: ${{ env.TAG_NAME }}
+          ref: ${{ github.event.release.tag_name }}
           submodules: recursive
           fetch-depth: 0
-
-      - name: Ensure docs workspace manifest
-        run: |
-          if [ -d docs ] && [ ! -f docs/package.json ]; then
-            echo '{"name":"@selling-partner-api/docs","version":"0.0.0","private":true,"type":"module"}' > docs/package.json
-          fi
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
@@ -67,48 +40,34 @@ jobs:
       - name: Build models package
         run: bun run build:models
 
-      - name: Determine release metadata
-        id: meta
+      - name: Validate version
         run: |
-          NORMALIZED="${TAG_NAME}";
-          NORMALIZED="${NORMALIZED#@selling-partner-api/models@}"
-          NORMALIZED="${NORMALIZED#models/v}"
-          NORMALIZED="${NORMALIZED#models-v}"
-
-          if [[ -z "${NORMALIZED}" || "${NORMALIZED}" = "${TAG_NAME}" ]]; then
-            echo "Unable to derive version from tag ${TAG_NAME}" >&2
-            exit 1
-          fi
-
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#@selling-partner-api/models@}"
           PACKAGE_VERSION=$(node -p "require('./packages/models/package.json').version")
-          if [ "${PACKAGE_VERSION}" != "${NORMALIZED}" ]; then
-            echo "Tag ${TAG_NAME} implies version ${NORMALIZED}, but package.json contains ${PACKAGE_VERSION}" >&2
+          
+          if [ "${PACKAGE_VERSION}" != "${VERSION}" ]; then
+            echo "Version mismatch: tag has ${VERSION} but package.json has ${PACKAGE_VERSION}" >&2
             exit 1
           fi
+          
+          echo "Version validated: ${VERSION}"
 
-          echo "version=${NORMALIZED}" >> "$GITHUB_OUTPUT"
-
-      - name: Verify npm token configured
-        run: |
-          if [ -z "${NPM_TOKEN:-}" ]; then
-            echo "NPM_SECRET secret must be configured in the repository settings" >&2
-            exit 1
-          fi
-
-      - name: Publish @selling-partner-api/models to npm
+      - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_SECRET }}
         run: |
           cd packages/models
-          export NODE_AUTH_TOKEN="${NPM_TOKEN}"
           npm publish --provenance --access public
 
-      - name: Setup Node for GitHub Packages publish
+      - name: Setup Node for GitHub Packages
         uses: actions/setup-node@v5
         with:
           node-version: "22"
           registry-url: "https://npm.pkg.github.com"
           scope: "@selling-partner-api"
 
-      - name: Publish @selling-partner-api/models to GitHub Packages
+      - name: Publish to GitHub Packages
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

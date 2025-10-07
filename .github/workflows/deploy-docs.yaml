@@ -3,9 +3,12 @@
 name: Deploy VitePress site to Pages
 
 on:
-  # Runs on pushes targeting the `main` branch
+  # Runs on pushes targeting the `main` branch that affect docs
   push:
     branches: [main]
+    paths:
+      - 'docs/**'
+      - '.github/workflows/deploy-docs.yaml'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:

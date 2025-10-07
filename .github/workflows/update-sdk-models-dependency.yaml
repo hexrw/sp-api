@@ -1,0 +1,69 @@
+name: Update SDK models dependency
+
+on:
+  release:
+    types:
+      - published
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-sdk-dependency:
+    # Only run when models package is released
+    if: startsWith(github.event.release.tag_name, '@selling-partner-api/models@')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.2.23"
+
+      - name: Extract models version from tag
+        id: version
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#@selling-partner-api/models@}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Models version: ${VERSION}"
+
+      - name: Update SDK dependency
+        run: |
+          cd packages/sdk
+          # Update the dependency to the exact version
+          bun add @selling-partner-api/models@${{ steps.version.outputs.version }}
+
+      - name: Verify changes
+        id: changes
+        run: |
+          if git diff --quiet packages/sdk/package.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No changes detected - SDK already uses this version"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "SDK dependency updated"
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(sdk): update @selling-partner-api/models to ${{ steps.version.outputs.version }}"
+          title: "chore(sdk): update @selling-partner-api/models to ${{ steps.version.outputs.version }}"
+          body: |
+            Updates `@selling-partner-api/models` dependency to version `${{ steps.version.outputs.version }}`.
+            
+            This PR was automatically created following the release of @selling-partner-api/models@${{ steps.version.outputs.version }}.
+            
+            Release: ${{ github.event.release.html_url }}
+          branch: chore/update-models-${{ steps.version.outputs.version }}
+          delete-branch: true
+          labels: dependencies

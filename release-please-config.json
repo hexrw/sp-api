@@ -14,14 +14,7 @@
             "package-name": "@selling-partner-api/models",
             "release-type": "node",
             "tag-template": "@selling-partner-api/models@${version}",
-            "changelog-path": "CHANGELOG.md",
-            "extra-files": [
-                {
-                    "type": "json",
-                    "path": "packages/sdk/package.json",
-                    "jsonpath": "$.dependencies['@selling-partner-api/models']"
-                }
-            ]
+            "changelog-path": "CHANGELOG.md"
         },
         "packages/sdk": {
             "component": "sdk",

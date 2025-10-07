@@ -4,14 +4,26 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.github/workflows/deploy-docs.yaml'
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.github/workflows/deploy-docs.yaml'
 
 permissions:
   contents: read
 
 jobs:
   test:
-    if: github.actor != 'github-actions[bot]'
+    # Skip CI for release-please PRs - they'll be tested before release
+    if: |
+      github.event_name == 'push' || 
+      (github.event_name == 'pull_request' && 
+       !contains(github.event.pull_request.labels.*.name, 'release: pending'))
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
