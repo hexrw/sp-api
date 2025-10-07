@@ -23,6 +23,15 @@ const expectedRange = `^${modelsVersion}`
 sdkPackage.dependencies ??= {}
 
 const currentRange = sdkPackage.dependencies["@selling-partner-api/models"]
+
+// Convert workspace:* to actual version for publishing
+if (currentRange === "workspace:*") {
+    console.log(`[sync-models] converting workspace dependency to ${expectedRange}`)
+    sdkPackage.dependencies["@selling-partner-api/models"] = expectedRange
+    writeFileSync(sdkPackagePath, `${JSON.stringify(sdkPackage, null, 4)}\n`)
+    process.exit(0)
+}
+
 if (currentRange === expectedRange) {
     console.log(`[sync-models] dependency already set to ${expectedRange}`)
     process.exit(0)
