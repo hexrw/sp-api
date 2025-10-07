@@ -44,7 +44,7 @@
         }
     },
     "dependencies": {
-        "@selling-partner-api/models": "^0.1.0",
+        "@selling-partner-api/models": "workspace:*",
         "limiter": "^3.0.0",
         "openapi-fetch": "^0.14.0"
     },
