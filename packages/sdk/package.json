@@ -1,6 +1,6 @@
 {
     "name": "@selling-partner-api/sdk",
-    "version": "2.3.0-beta.0",
+    "version": "0.1.0",
     "description": "Amazon Selling Partner API JavaScript client/SDK with full type coverage.",
     "type": "module",
     "author": "Petr Kolonicz <github.com/hexrw>",
@@ -44,7 +44,7 @@
         }
     },
     "dependencies": {
-        "@selling-partner-api/models": "^0.3.0",
+        "@selling-partner-api/models": "^0.1.0",
         "limiter": "^3.0.0",
         "openapi-fetch": "^0.14.0"
     },

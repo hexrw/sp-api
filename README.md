@@ -52,15 +52,14 @@ bun run docs:dev
 -   `packages/sdk` – the TypeScript runtime SDK published to npm and GitHub Packages as `@selling-partner-api/sdk`.
 -   `packages/models` – publishes the consolidated OpenAPI schema and type surface as `@selling-partner-api/models`.
 -   `vendor/selling-partner-api-models` – git submodule pointing to [amzn/selling-partner-api-models](https://github.com/amzn/selling-partner-api-models).
--   `.github/workflows` – automation for syncing models, validating builds, running release-please, and publishing to npm.
+-   `.github/workflows` – automation for syncing models, versioning via release-please, and publishing packages to npm/GitHub Packages.
 
 ### Automation highlights
 
--   **Nightly model sync** (`sync-models.yml`) updates the submodule, rebuilds the merged OpenAPI artefacts, regenerates rate-limits, and opens a release PR when changes land.
--   **Automated releases** via [`release-please`](https://github.com/google-github-actions/release-please) keep the changelog, tags, and npm versioning in sync for both the models and sdk packages. Release PRs are titled `release <component>@<version>` so they’re easy to spot in the queue.
--   **Release PR auto-merge** automatically lands `release: pending` pull requests so Dependabot patches flow straight to published betas.
+-   **Nightly model sync** (`sync-models.yml`) updates the submodule, rebuilds the merged OpenAPI artefacts, regenerates rate-limits, and dispatches a release sweep when new payloads land.
+-   **Release management** is handled by [`release-please`](https://github.com/google-github-actions/release-please). Separate PRs track `@selling-partner-api/models` and `@selling-partner-api/sdk`, auto-bumping versions, changelogs, and the SDK dependency on the latest models build.
 -   **CI** runs on every push/PR using Bun 1.2.x to ensure builds and tests stay green.
--   **Publish workflow** releases the SDK to npm whenever an `@selling-partner-api/sdk@*` GitHub release is published (requires the `NPM_SECRET` secret).
+-   **Publish workflows** respond to GitHub releases. Once release-please cuts `@selling-partner-api/models@*` / `@selling-partner-api/sdk@*`, dedicated jobs publish to npm and GitHub Packages with provenance (requires the `NPM_SECRET` secret).
 
 ### Preparing npm publish automation
 
@@ -68,7 +67,7 @@ bun run docs:dev
 2. In this repository, add a GitHub Actions secret called `NPM_SECRET` with that token value.
 3. (Optional) If you need to publish under an organization scope, ensure the automation token has the correct team permissions and that the package `@selling-partner-api/sdk` is owned by that account.
 
-Once configured, merging a release PR from release-please will tag `@selling-partner-api/sdk@X.Y.Z` and the `publish-sdk` workflow will push the build to npm automatically.
+Once configured, land your feature work on `main` and let release-please open the release PRs. Review/merge the PRs (auto-merge is enabled when checks pass) and the ensuing GitHub releases will trigger the publish workflows automatically.
 
 ## Contributing
 

@@ -1,39 +1,15 @@
 # Releasing & Publishing the SDK
 
-The repository publishes new SDK builds automatically. You do **not** bump versions or create Git tags by hand—the release pipeline listens for changes on `main`, prepares a release PR, and handles npm once that PR merges. All releases are currently published under the `beta` dist-tag.
+The repository publishes new SDK builds through release-please. When code lands on `main`, per-package release PRs keep versions, changelog entries, and dependency alignment ready to ship. Once merged, GitHub releases trigger the publish workflows that push to npm and GitHub Packages on the default `latest` dist-tag.
 
-## How the beta pipeline works today
+## Standard release flow
 
-1. Commits touching `packages/models` or `packages/sdk` land on `main`.
-2. [`release-please`](https://github.com/google-github-actions/release-please) opens (or updates) a unified release PR titled `release <component>@<version>` and applies the `release: pending` label.
-3. The PR contains all version bumps, changelog entries, and any workspace dependency updates required to keep `@selling-partner-api/sdk` aligned with `@selling-partner-api/models`.
-4. CI must stay green. Once it passes, the `release-please-auto-merge` workflow enables auto-merge so the PR lands as soon as reviews/checks allow.
-5. When the PR merges, release-please creates prerelease GitHub releases tagged `@selling-partner-api/models@<version>` first and `@selling-partner-api/sdk@<version>` second.
-6. The `publish-sdk` workflow reacts to those tags, rebuilds both packages, enforces the `-beta` suffix, and publishes to npm and GitHub Packages using the `beta` dist-tag.
+1. Land changes on `main`. When `packages/models` or `packages/sdk` updates, release-please opens (or refreshes) a release PR for that component.
+2. Review the release PR. Auto-merge is enabled for the `release: pending` label once checks pass, but you can merge manually if you prefer.
+3. On merge, release-please tags `@selling-partner-api/models@<version>` first, then `@selling-partner-api/sdk@<version>` and publishes GitHub releases.
+4. The `publish-models` workflow publishes the OpenAPI bundle to npm/GitHub Packages; once the version is visible, the `publish-sdk` workflow rebuilds against it and publishes the SDK with provenance attestation.
 
-To ship a new build you generally just review the release PR, allow auto-merge to do its thing, and watch the workflow logs.
-
-## Transitioning to a stable release
-
-When you’re ready to leave beta:
-
-1. **Update versioning**
-    - Edit `packages/sdk/package.json` and remove the `-beta.x` suffix (for example, change `2.0.0-beta.4` to `2.0.0`).
-    - Update `release-please-config.json` by setting `"prerelease": false` (or removing the field) so future releases are treated as stable.
-
-2. **Adjust the publish workflow**
-    - In `.github/workflows/publish-sdk.yaml`, remove the "Ensure beta prerelease version" step.
-    - Drop the `--tag beta` flag so npm publishes to the default `latest` tag.
-
-3. **Ship the stable release**
-    - Merge the changes above.
-    - Allow release-please to open the next release PR; merge it to generate tags like `@selling-partner-api/sdk@2.0.0`.
-    - Confirm the publish workflow succeeds without the beta guardrails.
-
-4. **Communicate the transition**
-    - Update docs, changelog call-outs, and release notes to highlight the move to stable.
-
-Following these steps keeps the automation intact while making it explicit when the package graduates from beta to a stable release.
+You still review every release, but the automation handles tagging, changelog maintenance, dependency alignment, and registry publishing.
 
 ## Registry credentials
 

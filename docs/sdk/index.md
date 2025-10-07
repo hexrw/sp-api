@@ -9,18 +9,15 @@ The `@selling-partner-api/sdk` package is a server-side JavaScript/TypeScript cl
 - Built-in LWA token management with refresh, grantless, and pre-provisioned token support.
 - Adaptive rate limiting per schema path backed by token buckets.
 - Helper clients (`ReportsClient`, `FinancesClient`) that encapsulate the trickier workflows most teams end up writing.
-- End-to-end automation: release detection, auto-merged release PRs, ordered publishing (models first, SDK second), and npm provenance attestation.
+- End-to-end automation: nightly model syncs, release-please managed versioning, ordered publishing (models first, SDK second), and npm provenance attestation.
 
 ## Release flow at a glance
 
-1. A commit touching `packages/models` or `packages/sdk` reaches `main`.
-2. `release-please` analyses the commit history and opens/updates a unified release PR titled `release <component>@<version>`.
-3. CI runs Biome, builds both packages, and executes Vitest with coverage thresholds (90% statements/lines, 85% branches).
-4. The `release-please-auto-merge` workflow enables auto-merge for the PR once checks are green and the `release: pending` label is present.
-5. On merge, release-please tags `@selling-partner-api/models@*` and `@selling-partner-api/sdk@*` (in that order) and publishes GitHub releases.
-6. The `publish-sdk` workflow publishes models to npm/GitHub Packages, waits until the version is visible, synchronises the SDK dependency, builds, tests, and publishes the SDK.
+1. Land a PR that modifies `packages/models` or `packages/sdk`.
+2. release-please updates (or opens) the per-package release PR with version bumps, changelog notes, and dependency alignment.
+3. Once checks pass, auto-merge lands the release PR, release-please tags the packages, and dedicated publish workflows push to npm/GitHub Packages with provenance.
 
-No manual tagging nor `npm publish` commands are required.
+You get reviewable release PRs and fully automated publishing without manual tagging.
 
 ## Package structure
 

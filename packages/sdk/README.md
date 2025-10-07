@@ -11,7 +11,7 @@ A fully typed TypeScript client for the Amazon Selling Partner API (SP-API). The
 - **Adaptive throttling** – per-path token buckets hydrate lazily and adjust when Amazon returns new rate-limit headers.
 - **Convenience clients** – `ReportsClient` and `FinancesClient` encapsulate complex polling and pagination logic.
 - **Model alignment** – every build synchronises the SDK's dependency on `@selling-partner-api/models` to the latest workspace version.
-- **Zero-touch releases** – `release-please` auto-merges `release: pending` PRs, tags `@selling-partner-api/models@*` before `@selling-partner-api/sdk@*`, and the publish workflow handles npm/GitHub Packages.
+- **Release automation** – release-please opens separate PRs for the models and SDK packages, keeps changelogs fresh, syncs the SDK dependency to the latest models build, and enables auto-merge once checks pass.
 
 ## Installation
 
@@ -109,15 +109,14 @@ Need more instrumentation? Pass extra middleware via the `middleware` option to 
 
 All thrown errors inherit from `SpError` and expose a stable `code` field (`AUTH_ERROR`, `RESPONSE_ERROR`, `VALIDATION_ERROR`, etc.) plus contextual metadata. Use `instanceof` or the `code` property to branch logic.
 
-## Release automation
+## Release guide
 
-1. Commits touching `packages/models` or `packages/sdk` trigger `release-please`.
-2. A single release PR collects version bumps, changelog entries, and synchronises the SDK's dependency on the models package. The PR title follows `release <component>@<version>`.
-3. CI (Biome linting, builds, Vitest coverage) must succeed; the `release-please-auto-merge` workflow enables auto-merge for PRs labeled `release: pending`.
-4. When the PR merges, release-please tags `@selling-partner-api/models@*` first, then `@selling-partner-api/sdk@*`.
-5. The `publish-sdk` workflow publishes the models package, waits for npm to expose the new version, synchronises the SDK dependency, and finally publishes the SDK to npm and GitHub Packages.
+1. Commit your changes as usual. When `packages/models` or `packages/sdk` change, release-please refreshes (or opens) a release PR for each component with version bumps, changelog entries, and dependency alignment.
+2. Review the PR(s). Auto-merge is enabled for the `release: pending` label once CI passes, or you can merge manually.
+3. When the release PR merges, release-please tags `@selling-partner-api/models@*` and `@selling-partner-api/sdk@*` (in that order) and publishes GitHub releases.
+4. The `publish-models` and `publish-sdk` workflows run from those releases, rebuilding from the tagged commit, verifying metadata, and publishing to npm and GitHub Packages.
 
-No manual tagging or version bumps are required—push code and wait for CI.
+If the SDK job waits on a models version, keep an eye on the `publish-models` workflow—it publishes first, and the SDK run exits once the dependency is available from npm.
 
 ## Development scripts
 
