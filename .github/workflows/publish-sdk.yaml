@@ -25,6 +25,19 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
+      - name: Ensure docs workspace manifest
+        run: |
+          if [ -d docs ] && [ ! -f docs/package.json ]; then
+            cat <<'EOF' > docs/package.json
+            {
+              "name": "@selling-partner-api/docs",
+              "version": "0.0.0",
+              "private": true,
+              "type": "module"
+            }
+            EOF
+          fi
+
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -78,6 +91,19 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+
+      - name: Ensure docs workspace manifest
+        run: |
+          if [ -d docs ] && [ ! -f docs/package.json ]; then
+            cat <<'EOF' > docs/package.json
+            {
+              "name": "@selling-partner-api/docs",
+              "version": "0.0.0",
+              "private": true,
+              "type": "module"
+            }
+            EOF
+          fi
 
       - name: Install Bun
         uses: oven-sh/setup-bun@v2
