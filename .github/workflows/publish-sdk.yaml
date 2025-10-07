@@ -28,14 +28,7 @@ jobs:
       - name: Ensure docs workspace manifest
         run: |
           if [ -d docs ] && [ ! -f docs/package.json ]; then
-            cat <<'EOF' > docs/package.json
-            {
-              "name": "@selling-partner-api/docs",
-              "version": "0.0.0",
-              "private": true,
-              "type": "module"
-            }
-            EOF
+            echo '{"name":"@selling-partner-api/docs","version":"0.0.0","private":true,"type":"module"}' > docs/package.json
           fi
 
       - name: Install Bun
@@ -95,14 +88,7 @@ jobs:
       - name: Ensure docs workspace manifest
         run: |
           if [ -d docs ] && [ ! -f docs/package.json ]; then
-            cat <<'EOF' > docs/package.json
-            {
-              "name": "@selling-partner-api/docs",
-              "version": "0.0.0",
-              "private": true,
-              "type": "module"
-            }
-            EOF
+            echo '{"name":"@selling-partner-api/docs","version":"0.0.0","private":true,"type":"module"}' > docs/package.json
           fi
 
       - name: Install Bun
@@ -127,6 +113,72 @@ jobs:
 
       - name: Run unit tests
         run: bunx vitest run --coverage
+
+      - name: Wait for @selling-partner-api/models availability
+        run: |
+          REQUIRED_VERSION=$(node -p "require('./packages/models/package.json').version")
+          echo "Waiting for @selling-partner-api/models >= ${REQUIRED_VERSION} to be available on npm"
+
+          compare_versions() {
+            local required="$1"
+            local published="$2"
+
+            IFS=.- read -r req_major req_minor req_patch req_label <<<"$required"
+            IFS=.- read -r pub_major pub_minor pub_patch pub_label <<<"$published"
+
+            req_major=${req_major:-0}
+            req_minor=${req_minor:-0}
+            req_patch=${req_patch:-0}
+            pub_major=${pub_major:-0}
+            pub_minor=${pub_minor:-0}
+            pub_patch=${pub_patch:-0}
+
+            if (( pub_major > req_major )); then return 0; fi
+            if (( pub_major < req_major )); then return 1; fi
+            if (( pub_minor > req_minor )); then return 0; fi
+            if (( pub_minor < req_minor )); then return 1; fi
+            if (( pub_patch > req_patch )); then return 0; fi
+            if (( pub_patch < req_patch )); then return 1; fi
+
+            if [ -n "$pub_label" ] && [ -z "$req_label" ]; then return 1; fi
+            if [ -z "$pub_label" ] && [ -n "$req_label" ]; then return 0; fi
+
+            if [ -n "$pub_label" ] && [ -n "$req_label" ]; then
+              if [[ "$pub_label" > "$req_label" ]]; then return 0; fi
+              if [[ "$pub_label" < "$req_label" ]]; then return 1; fi
+            fi
+
+            return 0
+          }
+
+          attempts=0
+          max_attempts=18
+          sleep_seconds=10
+
+          while true; do
+            PUBLISHED_VERSION=$(npm view @selling-partner-api/models version 2>/tmp/npm-error.log || true)
+
+            if [ -n "$PUBLISHED_VERSION" ]; then
+              echo "Found published version ${PUBLISHED_VERSION}"
+              if compare_versions "$REQUIRED_VERSION" "$PUBLISHED_VERSION"; then
+                echo "@selling-partner-api/models ${PUBLISHED_VERSION} satisfies requirement"
+                break
+              fi
+              echo "Published version ${PUBLISHED_VERSION} is lower than required ${REQUIRED_VERSION}"
+            else
+              echo "npm view failed:"
+              cat /tmp/npm-error.log || true
+            fi
+
+            attempts=$((attempts + 1))
+            if [ "$attempts" -ge "$max_attempts" ]; then
+              echo "Timed out waiting for @selling-partner-api/models ${REQUIRED_VERSION} to publish" >&2
+              exit 1
+            fi
+
+            echo "Retrying in ${sleep_seconds}s (attempt ${attempts}/${max_attempts})..."
+            sleep "$sleep_seconds"
+          done
 
       - name: Ensure beta prerelease version
         run: |

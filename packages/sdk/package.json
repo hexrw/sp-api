@@ -43,7 +43,7 @@
         }
     },
     "dependencies": {
-        "@selling-partner-api/models": "^0.2.0",
+        "@selling-partner-api/models": "^0.3.0",
         "limiter": "^3.0.0",
         "openapi-fetch": "^0.14.0"
     },
