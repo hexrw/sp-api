@@ -1,13 +1,18 @@
 {
     "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
     "release-type": "node",
-    "include-component-in-tag": false,
+    "include-component-in-tag": true,
     "separate-pull-requests": false,
+    "pull-request-title-pattern": "release ${component}@${version}",
+    "pull-request-header": ":rocket: Preparing @selling-partner-api/${component}@${version}",
+    "pull-request-footer": "Merge once you're ready to ship @selling-partner-api/${component}@${version}.",
+    "label": "release: pending",
+    "release-label": "release: tagged",
     "packages": {
         "packages/models": {
             "component": "models",
             "package-name": "@selling-partner-api/models",
-            "tag-template": "models-v${version}",
+            "tag-template": "@selling-partner-api/models@${version}",
             "changelog-path": "CHANGELOG.md",
             "extra-files": [
                 {
@@ -20,7 +25,7 @@
         "packages/sdk": {
             "component": "sdk",
             "package-name": "@selling-partner-api/sdk",
-            "tag-template": "sdk-v${version}",
+            "tag-template": "@selling-partner-api/sdk@${version}",
             "changelog-path": "CHANGELOG.md",
             "prerelease": true,
             "prerelease-type": "beta"

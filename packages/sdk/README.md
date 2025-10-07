@@ -11,7 +11,7 @@ A fully typed TypeScript client for the Amazon Selling Partner API (SP-API). The
 - **Adaptive throttling** – per-path token buckets hydrate lazily and adjust when Amazon returns new rate-limit headers.
 - **Convenience clients** – `ReportsClient` and `FinancesClient` encapsulate complex polling and pagination logic.
 - **Model alignment** – every build synchronises the SDK's dependency on `@selling-partner-api/models` to the latest workspace version.
-- **Zero-touch releases** – `release-please` auto-merges release PRs, tags models first, and the publish workflow handles npm/GitHub Packages.
+- **Zero-touch releases** – `release-please` auto-merges `release: pending` PRs, tags `@selling-partner-api/models@*` before `@selling-partner-api/sdk@*`, and the publish workflow handles npm/GitHub Packages.
 
 ## Installation
 
@@ -112,9 +112,9 @@ All thrown errors inherit from `SpError` and expose a stable `code` field (`AUTH
 ## Release automation
 
 1. Commits touching `packages/models` or `packages/sdk` trigger `release-please`.
-2. A single release PR collects version bumps, changelog entries, and synchronises the SDK's dependency on the models package.
-3. CI (Biome linting, builds, Vitest coverage) must succeed; the `release-please-auto-merge` workflow enables auto-merge for the PR.
-4. When the PR merges, release-please tags `models-v*` first, then `sdk-v*`.
+2. A single release PR collects version bumps, changelog entries, and synchronises the SDK's dependency on the models package. The PR title follows `release <component>@<version>`.
+3. CI (Biome linting, builds, Vitest coverage) must succeed; the `release-please-auto-merge` workflow enables auto-merge for PRs labeled `release: pending`.
+4. When the PR merges, release-please tags `@selling-partner-api/models@*` first, then `@selling-partner-api/sdk@*`.
 5. The `publish-sdk` workflow publishes the models package, waits for npm to expose the new version, synchronises the SDK dependency, and finally publishes the SDK to npm and GitHub Packages.
 
 No manual tagging or version bumps are required—push code and wait for CI.

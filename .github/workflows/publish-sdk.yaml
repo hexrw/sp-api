@@ -16,7 +16,7 @@ env:
 
 jobs:
   publish-models:
-    if: startsWith(github.event.release.tag_name, 'models-')
+    if: startsWith(github.event.release.tag_name, '@selling-partner-api/models@')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -76,7 +76,7 @@ jobs:
           npm publish --provenance --access public
 
   publish:
-    if: startsWith(github.event.release.tag_name, 'sdk-')
+    if: startsWith(github.event.release.tag_name, '@selling-partner-api/sdk@')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

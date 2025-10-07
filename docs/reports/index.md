@@ -4,7 +4,7 @@ _Notes, patterns, and gotchas for Amazon SP-API Reports_
 
 ---
 
-Amazon often deprecates report types, usually those are legacy reports already replaced by newer ones, but that may not always be the case. Therefore, is is highly recommended to watch the official announcements closely for deprecation notices.
+Amazon often deprecates report types. Usually those are legacy reports already replaced by newer ones, but that may not always be the case. Therefore, it is highly recommended to watch the official announcements closely for deprecation notices.
 
 Amazon states they want to fully deprecate the Reports API in the future and replace it with the Data Kiosk. However, as of now, the Data Kiosk does not provide a fraction of the functionality that the Reports API provides and it still has many bugs and limitations. Therefore, it is recommended to continue using the Reports API for now.
 
@@ -26,10 +26,10 @@ But, new report types are still being added, so it is reasonable to assume the R
 ---
 
 ## Quick links
-- [Creating Reports](./requesting-reports.md)
-- [Get Report](./get-report.md)
-- [Document Download](./document-download.md)
+- [Creating reports](./requesting-reports.md)
+- [Report type registry](./registry.md)
+- [Report types explained](./types.md)
 
 ---
 
-Last updated: 21th of August 2025
+Last updated: 4 September 2025

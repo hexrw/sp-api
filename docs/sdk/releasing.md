@@ -1,37 +1,39 @@
 # Releasing & Publishing the SDK
 
-This repository ships the SDK to npm automatically whenever a GitHub release with the `sdk-` prefix is published. Releases are currently treated as **beta pre-releases** so consumers must opt in to the `beta` dist-tag on npm.
+The repository publishes new SDK builds automatically. You do **not** bump versions or create Git tags by hand—the release pipeline listens for changes on `main`, prepares a release PR, and handles npm once that PR merges. All releases are currently published under the `beta` dist-tag.
 
-## How the beta pipeline works
+## How the beta pipeline works today
 
-1. You bump the version in `packages/sdk/package.json`. Keep the existing semantic version and append a `-beta.x` suffix (for example, `2.0.0-beta.0`).  
-2. Commit the change and merge it into `main`.  
-3. Create a GitHub release that tags the repository with `sdk-v<version>` (for example, `sdk-v2.0.0-beta.0`). Mark the release as a pre-release in the GitHub UI if you create it manually.  
-4. The `publish-sdk` GitHub Action runs automatically. It builds the SDK, runs tests, confirms the version contains `-beta`, then publishes to both npm and GitHub Packages with the `beta` dist-tag (`npm install @selling-partner-api/sdk@beta` or install from `https://github.com/selling-partner-api/selling-partner-api/pkgs/npm/sdk`).
+1. Commits touching `packages/models` or `packages/sdk` land on `main`.
+2. [`release-please`](https://github.com/google-github-actions/release-please) opens (or updates) a unified release PR titled `release <component>@<version>` and applies the `release: pending` label.
+3. The PR contains all version bumps, changelog entries, and any workspace dependency updates required to keep `@selling-partner-api/sdk` aligned with `@selling-partner-api/models`.
+4. CI must stay green. Once it passes, the `release-please-auto-merge` workflow enables auto-merge so the PR lands as soon as reviews/checks allow.
+5. When the PR merges, release-please creates prerelease GitHub releases tagged `@selling-partner-api/models@<version>` first and `@selling-partner-api/sdk@<version>` second.
+6. The `publish-sdk` workflow reacts to those tags, rebuilds both packages, enforces the `-beta` suffix, and publishes to npm and GitHub Packages using the `beta` dist-tag.
 
-The workflow will fail if the version string does not include `-beta`, preventing accidental stable releases.
+To ship a new build you generally just review the release PR, allow auto-merge to do its thing, and watch the workflow logs.
 
 ## Transitioning to a stable release
 
-When you are ready to ship a non-beta build:
+When you’re ready to leave beta:
 
 1. **Update versioning**
-   - Edit `packages/sdk/package.json` and remove the `-beta.x` suffix (for example, change `2.0.0-beta.4` to `2.0.0`).
-   - Update `release-please-config.json` by setting `"prerelease": false` (or removing the field) so future releases are treated as stable.
+    - Edit `packages/sdk/package.json` and remove the `-beta.x` suffix (for example, change `2.0.0-beta.4` to `2.0.0`).
+    - Update `release-please-config.json` by setting `"prerelease": false` (or removing the field) so future releases are treated as stable.
 
 2. **Adjust the publish workflow**
-   - In `.github/workflows/publish-sdk.yaml`, remove the "Ensure beta prerelease version" step.
-   - Change the publish command to drop the `--tag beta` flag so npm publishes to the default `latest` tag.
+    - In `.github/workflows/publish-sdk.yaml`, remove the "Ensure beta prerelease version" step.
+    - Drop the `--tag beta` flag so npm publishes to the default `latest` tag.
 
-3. **Create the stable release**
-   - Commit the changes above and merge them into `main`.
-   - Create a GitHub release tagged `sdk-v<stable-version>` (for example, `sdk-v2.0.0`).
-   - The workflow will publish the stable build to npm under the `latest` tag.
+3. **Ship the stable release**
+    - Merge the changes above.
+    - Allow release-please to open the next release PR; merge it to generate tags like `@selling-partner-api/sdk@2.0.0`.
+    - Confirm the publish workflow succeeds without the beta guardrails.
 
 4. **Communicate the transition**
-   - Update documentation, release notes and any migration guides to highlight that the SDK left beta.
+    - Update docs, changelog call-outs, and release notes to highlight the move to stable.
 
-Following these steps keeps the automated pipeline intact while making it explicit when the package graduates from beta to a stable release.
+Following these steps keeps the automation intact while making it explicit when the package graduates from beta to a stable release.
 
 ## Registry credentials
 

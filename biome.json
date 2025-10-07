@@ -8,5 +8,11 @@
         "rules": {
             "recommended": true
         }
+    },
+    "vcs": {
+        "enabled": true,
+        "useIgnoreFile": true,
+        "clientKind": "git",
+        "defaultBranch": "main"
     }
 }

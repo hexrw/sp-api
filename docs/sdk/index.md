@@ -14,10 +14,10 @@ The `@selling-partner-api/sdk` package is a server-side JavaScript/TypeScript cl
 ## Release flow at a glance
 
 1. A commit touching `packages/models` or `packages/sdk` reaches `main`.
-2. `release-please` analyses the commit history and opens/updates a unified release PR.
+2. `release-please` analyses the commit history and opens/updates a unified release PR titled `release <component>@<version>`.
 3. CI runs Biome, builds both packages, and executes Vitest with coverage thresholds (90% statements/lines, 85% branches).
-4. The `release-please-auto-merge` workflow enables auto-merge for the PR once checks are green.
-5. On merge, release-please tags `models-v*` and `sdk-v*` (in that order) and publishes GitHub releases.
+4. The `release-please-auto-merge` workflow enables auto-merge for the PR once checks are green and the `release: pending` label is present.
+5. On merge, release-please tags `@selling-partner-api/models@*` and `@selling-partner-api/sdk@*` (in that order) and publishes GitHub releases.
 6. The `publish-sdk` workflow publishes models to npm/GitHub Packages, waits until the version is visible, synchronises the SDK dependency, builds, tests, and publishes the SDK.
 
 No manual tagging nor `npm publish` commands are required.
