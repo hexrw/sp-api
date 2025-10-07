@@ -28,7 +28,8 @@
     "scripts": {
         "clean": "rm -rf dist",
         "generate:limits": "bun run scripts/generate-limits.ts",
-        "build": "bun run clean && bun run generate:limits && tsc --project tsconfig.build.json",
+        "sync:models": "bun run scripts/sync-models-dependency.ts",
+        "build": "bun run clean && bun run generate:limits && bun run sync:models && tsc --project tsconfig.build.json",
         "typecheck": "tsc --noEmit",
         "test": "bunx vitest"
     },

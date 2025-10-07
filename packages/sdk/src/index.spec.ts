@@ -1,8 +1,11 @@
 import { describe, it, expect } from "vitest"
 import * as sdk from "./index"
 
-describe("sp-sdk", () => {
-    it("exports something", () => {
-        expect(sdk).toBeDefined()
+describe("package entrypoint", () => {
+    it("exposes primary classes and helpers", () => {
+        expect(sdk.SpApi).toBeDefined()
+        expect(sdk.ReportsClient).toBeDefined()
+        expect(sdk.LwaClient).toBeDefined()
+        expect(sdk.Region).toBeDefined()
     })
 })

@@ -1,33 +1,43 @@
 # SDK Overview
 
-Welcome to the home for the `@selling-partner-api/sdk` JavaScript/TypeScript client. This section explains how the SDK is versioned, what environments it supports, and the workflows we ship to keep releases healthy. Every beta build is available from both npm (`npm install @selling-partner-api/sdk@beta`) and [GitHub Packages](https://github.com/orgs/selling-partner-api/packages?repo-name=selling-partner-api).
+The `@selling-partner-api/sdk` package is a server-side JavaScript/TypeScript client that mirrors the Amazon SP-API surface area. It is published from this repository whenever code changes land on `main` and has a hard dependency on the companion `@selling-partner-api/models` package.
 
-## Why this SDK
+## What you get
 
-- **Fully typed** – generated from the upstream Selling Partner API models with zero manual shimming.
-- **Modern runtime support** – tested against Bun 1.2+, Node 22+, and edge runtimes powered by the Fetch API.
-- **Automated updates** – Dependabot, nightly model syncs, and release-please keep dependencies, schemas, and rate limits current.
-- **Pragmatic defaults** – opinionated rate limiting, sensible retries, and ergonomic helpers, while still letting you drop down to raw endpoints.
+- Generated typings sourced from Amazon's OpenAPI definitions.
+- A composable `SpApi` client built on top of `openapi-fetch`.
+- Built-in LWA token management with refresh, grantless, and pre-provisioned token support.
+- Adaptive rate limiting per schema path backed by token buckets.
+- Helper clients (`ReportsClient`, `FinancesClient`) that encapsulate the trickier workflows most teams end up writing.
+- End-to-end automation: release detection, auto-merged release PRs, ordered publishing (models first, SDK second), and npm provenance attestation.
 
-## Release cadence
+## Release flow at a glance
 
-The repository uses [release-please](https://github.com/google-github-actions/release-please) to cut semantic versions whenever changes land on `main`. Upstream schema refreshes from Amazon are ingested nightly via the `sync-models` workflow and trigger a release if the generated outputs change.
+1. A commit touching `packages/models` or `packages/sdk` reaches `main`.
+2. `release-please` analyses the commit history and opens/updates a unified release PR.
+3. CI runs Biome, builds both packages, and executes Vitest with coverage thresholds (90% statements/lines, 85% branches).
+4. The `release-please-auto-merge` workflow enables auto-merge for the PR once checks are green.
+5. On merge, release-please tags `models-v*` and `sdk-v*` (in that order) and publishes GitHub releases.
+6. The `publish-sdk` workflow publishes models to npm/GitHub Packages, waits until the version is visible, synchronises the SDK dependency, builds, tests, and publishes the SDK.
 
-1. Dependabot & nightly sync jobs open pull requests with updated lockfiles or schemas.
-2. CI (`ci.yaml`) runs bun-based builds and tests on every PR and push.
-3. Approved dependency patches are auto-merged; everything else requires a human review.
-4. Once merged to `main`, `release-please.yaml` tags `sdk-vX.Y.Z` and records changes in `packages/sdk/CHANGELOG.md`.
-5. The `publish-sdk.yaml` workflow publishes the package to npm (after the `NPM_SECRET` secret is configured).
+No manual tagging nor `npm publish` commands are required.
 
-## Supported runtimes
+## Package structure
 
-| Runtime | Minimum version | Notes |
-| --- | --- | --- |
-| Bun | 1.2.0 | Primary development environment. Build, test, and scripts are bun-native. |
-| Node.js | 22.0.0 | Uses the Web Fetch API and Undici under the hood. Enable `--experimental-fetch` on older LTS streams if you must, but they are unsupported. |
-| Deno | 1.42 | Works via the ESM output. You will need to polyfill the `limiter` package with npm compat enabled. |
+| Path | Purpose |
+| --- | --- |
+| `packages/models` | Consolidated OpenAPI schema published as `@selling-partner-api/models`. |
+| `packages/sdk` | The runtime SDK published as `@selling-partner-api/sdk`. |
+| `packages/sdk/scripts` | Automation scripts (rate-limit generation, dependency sync). |
+| `docs/sdk/*` | The documentation you are reading right now. |
 
-For browser usage, prefer server-side deployment. The SDK requires confidential credentials (LWA refresh tokens) and performs rate limiting that isn’t suitable for front-end applications.
+## Runtime support
+
+- Node.js ≥ 22.x (LTS) – leverages built-in `fetch`, `URL`, and Web Streams.
+- Bun ≥ 1.2 – supported out of the box.
+- Deno (server-side) – works when you provide compatible `fetch`/`Blob` implementations.
+
+Browser runtimes are **not supported** because SP-API credentials must remain secret and rate-limiting requires server-side state.
 
 ## Next steps
 

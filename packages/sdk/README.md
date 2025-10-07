@@ -1,193 +1,150 @@
-# Selling Partner API TypeScript Client
+# Selling Partner API SDK (`@selling-partner-api/sdk`)
 
-This SDK can only run server-side. For one, Selling Partner API does not support CORS, second, it requires a client secret and refresh token which should not be exposed in the browser and third, rate limiting uses a cache database to store the rate limit state which is not available in the browser.
+A fully typed TypeScript client for the Amazon Selling Partner API (SP-API). The SDK mirrors Amazon's OpenAPI definitions, manages Login with Amazon (LWA) authentication, and bundles opinionated helpers for high-traffic endpoints such as Reports and Finances.
 
-- Cross-runtime
-    - works in Node.js, Deno and Bun (server-side only)
-- Written in TypeScript
-    - full typing coverage
-    - typing based on the [OpenAPI schemas provided by Amazon](https://github.com/amzn/selling-partner-api-models)
-- Lightweight
-- Handles authentication
-    - auto-refresh access token
-- Handles rate limiting with custom backoff strategy
-- Handles throttling
-- Handles request signing (needs additional setup)
-- Auto-retry (1 retry by default)
-- Automatic response destructuring using [destr](https://github.com/unjs/destr)
-    - no need to manually parse response
-    - falls back to raw response
+> **Server-side only** – SP-API credentials must never be exposed in the browser. Target Node.js ≥ 22 or Bun ≥ 1.2.
 
-## Install
+## Highlights
+
+- **End-to-end typing** – request and response contracts are generated from the official Amazon models.
+- **Automated auth** – the built-in `LwaClient` refreshes tokens, supports grantless flows, and caches results.
+- **Adaptive throttling** – per-path token buckets hydrate lazily and adjust when Amazon returns new rate-limit headers.
+- **Convenience clients** – `ReportsClient` and `FinancesClient` encapsulate complex polling and pagination logic.
+- **Model alignment** – every build synchronises the SDK's dependency on `@selling-partner-api/models` to the latest workspace version.
+- **Zero-touch releases** – `release-please` auto-merges release PRs, tags models first, and the publish workflow handles npm/GitHub Packages.
+
+## Installation
 
 ```bash
+# npm
 npm install @selling-partner-api/sdk
-# or
+
+# bun
 bun add @selling-partner-api/sdk
 ```
 
-Pair the SDK with the published models package whenever you need direct access to the full OpenAPI schema or type metadata:
+When you consume the SDK from npm the `@selling-partner-api/models` dependency is installed for you. Building from this repository also runs a sync script so the SDK always compiles against the newest models version on `main`.
 
-```bash
-npm install @selling-partner-api/models
-# or
-bun add @selling-partner-api/models
-```
-
-## Usage
-
-### Create a client instance
+## Quick start
 
 ```ts
-import { SpApi, Region } from "@selling-partner-api/sdk"
+import { Marketplace, Region, SpApi } from "@selling-partner-api/sdk"
 
-const client = new SpApi({
-    clientId: "amzn1.application-oa2-client.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    clientSecret: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    refreshToken: "Atzr|xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    region: Region.EU
-})
-```
-
-### Make a request
-
-```ts
-// Example request - get a list of 'GET_MERCHANT_LISTINGS_ALL_DATA' reports
-import { SpApi, Marketplace } from "@selling-partner-api/sdk"
-
-/*
- * Response is automatically typed based on the OpenAPI schema provided by Amazon.
- * It will also be automatically parsed and destructured using the correct format
- * falling back to plain text if needed.
- */
 const client = new SpApi({
     clientId: process.env.SP_CLIENT_ID!,
     clientSecret: process.env.SP_CLIENT_SECRET!,
     refreshToken: process.env.SP_REFRESH_TOKEN!,
-    region: Region.EU
+    region: Region.EU,
 })
 
 const { reports } = await client.get("/reports/2021-06-30/reports", {
     params: {
-        // Query will be automatically URL encoded, joined and appended to the final URL
         query: {
-            reportTypes: ["GET_MERCHANT_LISTINGS_ALL_DATA"], // case-sensitive
+            reportTypes: ["GET_MERCHANT_LISTINGS_ALL_DATA"],
             marketplaceIds: [Marketplace.UK],
             pageSize: 10,
-            createdSince: new Date("2021-01-01").toISOString(), // ISO 8601
-            processingStatuses: ["DONE"], // case-sensitive
         },
     },
 })
+
+for (const report of reports ?? []) {
+    console.log(report.reportId, report.processingStatus)
+}
 ```
 
-### Make a request using a helper method from the wrapper
-
-**Note**: The wrapper doesn't offer full coverage of the SP-API. It's only meant to make common requests easier.
+### Convenience helpers
 
 ```ts
-import { Marketplace } from "@selling-partner-api/sdk"
+import { FinancesClient, ReportsClient } from "@selling-partner-api/sdk"
 
-const orders = await client.getOrders({
-    marketplaceIds: [Marketplace.UK],
-    pageSize: 10,
-    createdAfter: "2021-01-01", // supports all common date formats
+const reportsClient = new ReportsClient(client)
+
+// Create and wait for a report
+const created = await reportsClient.create({
+    reportType: "GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_GENERAL",
+    marketplaces: [Marketplace.US],
 })
-```
 
-## Current internal fetch client SP-API coverage
+const completed = await reportsClient.waitForReport(created.reportId!, {
+    intervalMs: 5_000,
+    onStatus: (status) => console.info("Report status", status),
+})
 
-<details>
-<summary>Expand</summary>
+const document = await reportsClient.download(completed.payload!.reportDocumentId!, { decompress: true })
+const rows = document.toRows()
+console.log("Downloaded", rows.length, "rows")
 
-| API Reference                                               | Version    | Status |
-| ----------------------------------------------------------- | ---------- | ------ |
-| A+ Content Management API v2020-11-01                       | 2020-11-01 | 🚧     |
-| Authorization API v1                                        | v1         | ✅     |
-| Catalog Items API v2022-04-01                               | 2022-04-01 | ✅     |
-| Catalog Items API v2020-12-01                               | 2020-12-01 | ❌     |
-| Catalog Items API v0                                        | v0         | ❌     |
-| Easy Ship API v2022-03-23                                   | 2022-03-23 | 🚧     |
-| FBA Inbound Eligibility API v1                              | V1         | 🚧     |
-| FBA Inventory API v1                                        | V1         | 🚧     |
-| FBA Small and Light API v1                                  | v1         | 🚧     |
-| Feeds API v2021-06-30                                       | 2021-06-30 | 🚧     |
-| Feeds API v2020-09-04                                       | 2020-09-04 | ❌     |
-| Finances API v0                                             | v0         | ✅     |
-| Fulfillment Inbound API v0                                  | v0         | 🚧     |
-| Fulfillment Outbound API v2020-07-01                        | 2020-07-01 | 🚧     |
-| Listings Items API v2021-08-01                              | 2021-08-01 | ✅     |
-| Listings Items API v2020-09-01                              | 2020-09-01 | ❌     |
-| Listing Restrictions API v2021-08-01                        | 2021-08-01 | ✅     |
-| Merchant Fulfillment API v0                                 | v0         | 🚧     |
-| Messaging API v1                                            | v1         | 🚧     |
-| Notifications API v1                                        | v1         | ✅     |
-| Orders API v0                                               | v0         | ✅     |
-| Product Fees API v0                                         | v0         | ✅     |
-| Product Pricing API v0                                      | v0         | ✅     |
-| Product Pricing API v2022-05-01                             | 2022-05-01 | ✅     |
-| Product Type Definitions API v2020-09-01                    | 2020-09-01 | ❌     |
-| Replenishment API v2022-11-07                               | 2022-11-07 | ❌     |
-| Reports API v2021-06-30                                     | 2021-06-30 | ✅     |
-| Reports API v2020-09-04                                     | 2020-09-04 | ❌     |
-| Sales API v1                                                | v1         | ✅     |
-| Sellers API v1                                              | v1         | ✅     |
-| Services API v1                                             | v1         | ✅     |
-| Shipment Invoicing API v0                                   | v0         | 🚧     |
-| Shipping API v1                                             | v1         | 🚧     |
-| Solicitations API v1                                        | v1         | 🚧     |
-| Tokens API v2021-03-01                                      | 2021-03-01 | ✅     |
-| Uploads API v2020-11-01                                     | 2020-11-01 | 🚧     |
-| Vendor Direct Fulfillment Inventory API v1                  | v1         | 🚧     |
-| Vendor Direct Fulfillment Orders API v2021-12-28            | 2021-12-28 | 🚧     |
-| Vendor Direct Fulfillment Orders API v1                     | v1         | ❌     |
-| Vendor Direct Fulfillment Payments API v1                   | v1         | 🚧     |
-| Vendor Direct Fulfillment Sandbox Test Data API v2021-12-28 | 2021-12-28 | ❌     |
-| Vendor Direct Fulfillment Shipping API v2021-12-28          | 2021-12-28 | 🚧     |
-| Vendor Direct Fulfillment Shipping API v1                   | v1         | ❌     |
-| Vendor Direct Fulfillment Transactions API v2021-12-28      | 2021-12-28 | 🚧     |
-| Vendor Direct Fulfillment Transactions API v1               | v1         | ❌     |
-| Vendor Retail Procurement Invoices API v1                   | v1         | 🚧     |
-| Vendor Retail Procurement Orders API v1                     | v1         | 🚧     |
-| Vendor Retail Procurement Shipments API v1                  | v1         | 🚧     |
-| Vendor Retail Procurement Transaction Status API v1         | v1         | 🚧     |
-
-</details>
-
-## Development
-
-### Scripts
-
-```json5
-// package.json (workspace root)
-{
-    "scripts": {
-        "build": "bun run --cwd packages/sdk build",
-        "test": "bunx vitest"
-    }
-}
-
-// packages/sdk/package.json
-{
-    "scripts": {
-        "build": "bun run clean && bun run generate:limits && tsc --project tsconfig.build.json",
-        "test": "bunx vitest"
-    }
+// Stream financial events with automatic pagination
+const finances = new FinancesClient(client)
+for await (const page of finances.iterateFinancialEvents({}, { pageSize: 100, delayMs: 250 })) {
+    console.log("Fetched", page.payload?.FinancialEvents?.ShipmentEventList?.length ?? 0, "shipment events")
 }
 ```
 
-### Build
+## Authentication options
 
-```bash
-bun run --cwd packages/sdk build
+- **Refresh token flow** – provide `clientId`, `clientSecret`, and `refreshToken`. The SDK handles refreshes automatically.
+- **Grantless flow** – provide scopes, omit the refresh token, and the client will request a client-credential token.
+- **Pre-fetched token** – pass `accessToken` (and optionally `accessTokenExpiresAt`) for environments that manage tokens externally. Call `SpApi.getLwaClient()` if you need lower-level control.
+
+The `LwaClient` class is exported for bespoke integrations and exposes `invalidate()` to force a refresh.
+
+## Rate limiting & middleware
+
+Every schema path receives a lazily created `TokenBucket`. Default quotas originate from `packages/sdk/src/assets/rate-limits.json`. Buckets automatically adjust when Amazon sends new `x-amzn-RateLimit-Limit` headers and collapse when a 429 is returned.
+
+```ts
+import { TokenBucket } from "@selling-partner-api/sdk"
+
+client.setRateLimiter("/orders/v0/orders#GET", new TokenBucket({
+    bucketSize: 10,
+    tokensPerInterval: 2,
+    interval: "second",
+}))
 ```
 
-### Test
+Need more instrumentation? Pass extra middleware via the `middleware` option to log requests, sign with SigV4, or hook into retries.
+
+## Errors
+
+All thrown errors inherit from `SpError` and expose a stable `code` field (`AUTH_ERROR`, `RESPONSE_ERROR`, `VALIDATION_ERROR`, etc.) plus contextual metadata. Use `instanceof` or the `code` property to branch logic.
+
+## Release automation
+
+1. Commits touching `packages/models` or `packages/sdk` trigger `release-please`.
+2. A single release PR collects version bumps, changelog entries, and synchronises the SDK's dependency on the models package.
+3. CI (Biome linting, builds, Vitest coverage) must succeed; the `release-please-auto-merge` workflow enables auto-merge for the PR.
+4. When the PR merges, release-please tags `models-v*` first, then `sdk-v*`.
+5. The `publish-sdk` workflow publishes the models package, waits for npm to expose the new version, synchronises the SDK dependency, and finally publishes the SDK to npm and GitHub Packages.
+
+No manual tagging or version bumps are required—push code and wait for CI.
+
+## Development scripts
 
 ```bash
-bunx vitest run
+# Lint (Biome + TypeScript checks)
+bun run lint
+
+# Run the Vitest suite with coverage
+bun run test -- --run --coverage
+
+# Build both workspace packages
+bun run build
+```
+
+Inside `packages/sdk`:
+
+```bash
+# Regenerate rate-limit metadata and compile
+bun run build
+
+# Align the SDK dependency with the latest models version
+bun run sync:models
+
+# Execute Vitest inside the package
+bun run test
 ```
 
 ## License
 
-[MIT](./LICENSE)
+[MIT](../../LICENSE)

@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'packages/models/**'
+      - 'packages/sdk/**'
+      - '.release-please-manifest.json'
+      - 'release-please-config.json'
+      - '.github/workflows/release-please.yaml'
   workflow_dispatch:
 
 permissions:

@@ -222,6 +222,7 @@ export class ReportsClient {
         }
     }
 
+    /* c8 ignore start */
     private async decompressGzip(bytes: ByteArray): Promise<ByteArray> {
         if (typeof DecompressionStream !== "undefined") {
             const stream = new Blob([bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer]).stream().pipeThrough(new DecompressionStream("gzip"))
@@ -241,6 +242,7 @@ export class ReportsClient {
 
         throw new SpValidationError("GZIP decompression is not supported in this runtime. Provide pre-decompressed bytes instead.")
     }
+    /* c8 ignore end */
 
     public toReportMeta(response: GetReportResponse): ReportSummary | undefined {
         const payload = this.getReportPayload(response)

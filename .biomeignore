@@ -1,0 +1,4 @@
+packages/**/dist/**
+docs/.vitepress/cache/**
+coverage/**
+vendor/**
