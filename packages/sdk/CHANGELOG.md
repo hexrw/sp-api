@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0-beta.0](https://github.com/selling-partner-api/selling-partner-api/compare/sdk-v2.4.0-beta.0...sdk-v2.5.0-beta.0) (2025-10-07)
+
+
+### Features
+
+* add report helpers and SDK updates ([ce13dd2](https://github.com/selling-partner-api/selling-partner-api/commit/ce13dd2e2a5bbd5cf1938f7ec4588660b56cd0e4))
+
 ## [2.4.0-beta.0](https://github.com/selling-partner-api/selling-partner-api/compare/sdk-v2.3.0-beta.0...sdk-v2.4.0-beta.0) (2025-10-07)
 
 
