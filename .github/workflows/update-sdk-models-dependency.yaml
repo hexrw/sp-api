@@ -12,7 +12,9 @@ permissions:
 jobs:
   update-sdk-dependency:
     # Only run when models package is released
-    if: startsWith(github.event.release.tag_name, '@selling-partner-api/models@')
+    if: |
+      startsWith(github.event.release.tag_name, '@selling-partner-api/models@') ||
+      startsWith(github.event.release.tag_name, 'models-v')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -30,7 +32,9 @@ jobs:
         id: version
         run: |
           TAG="${{ github.event.release.tag_name }}"
+          # Handle both tag formats
           VERSION="${TAG#@selling-partner-api/models@}"
+          VERSION="${VERSION#models-v}"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Models version: ${VERSION}"
 

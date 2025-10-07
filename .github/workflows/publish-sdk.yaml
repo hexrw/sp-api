@@ -13,7 +13,9 @@ permissions:
 jobs:
   publish:
     # Only run for SDK releases
-    if: startsWith(github.event.release.tag_name, '@selling-partner-api/sdk@')
+    if: |
+      startsWith(github.event.release.tag_name, '@selling-partner-api/sdk@') ||
+      startsWith(github.event.release.tag_name, 'sdk-v')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -49,7 +51,9 @@ jobs:
       - name: Validate version
         run: |
           TAG="${{ github.event.release.tag_name }}"
+          # Handle both tag formats
           VERSION="${TAG#@selling-partner-api/sdk@}"
+          VERSION="${VERSION#sdk-v}"
           PACKAGE_VERSION=$(node -p "require('./packages/sdk/package.json').version")
           
           if [ "${PACKAGE_VERSION}" != "${VERSION}" ]; then

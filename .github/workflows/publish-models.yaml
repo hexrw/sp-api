@@ -13,7 +13,9 @@ permissions:
 jobs:
   publish:
     # Only run for models releases
-    if: startsWith(github.event.release.tag_name, '@selling-partner-api/models@')
+    if: |
+      startsWith(github.event.release.tag_name, '@selling-partner-api/models@') ||
+      startsWith(github.event.release.tag_name, 'models-v')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -43,7 +45,9 @@ jobs:
       - name: Validate version
         run: |
           TAG="${{ github.event.release.tag_name }}"
+          # Handle both tag formats
           VERSION="${TAG#@selling-partner-api/models@}"
+          VERSION="${VERSION#models-v}"
           PACKAGE_VERSION=$(node -p "require('./packages/models/package.json').version")
           
           if [ "${PACKAGE_VERSION}" != "${VERSION}" ]; then
