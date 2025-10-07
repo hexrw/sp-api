@@ -1,6 +1,6 @@
 {
     "name": "@selling-partner-api/sdk",
-    "version": "2.2.0-beta.0",
+    "version": "2.3.0-beta.0",
     "description": "Amazon Selling Partner API JavaScript client/SDK with full type coverage.",
     "type": "module",
     "author": "Petr Kolonicz <github.com/hexrw>",
