@@ -2,6 +2,8 @@
 
 This package merges the upstream [amzn/selling-partner-api-models](https://github.com/amzn/selling-partner-api-models) repository into a single OpenAPI surface and TypeScript definition set that powers the SDK package.
 
+> 🚀 **Automated CI/CD**: This package is automatically released when changes are merged to main using conventional commits.
+
 ## Installation
 
 ```bash
