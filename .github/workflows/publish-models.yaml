@@ -4,6 +4,12 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to publish (e.g., models-v0.3.0)'
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -14,14 +20,24 @@ jobs:
   publish:
     # Only run for models releases
     if: |
+      github.event_name == 'workflow_dispatch' ||
       startsWith(github.event.release.tag_name, '@selling-partner-api/models@') ||
       startsWith(github.event.release.tag_name, 'models-v')
     runs-on: ubuntu-latest
     steps:
+      - name: Resolve tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "TAG_NAME=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          else
+            echo "TAG_NAME=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          fi
+      
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ steps.tag.outputs.TAG_NAME }}
           submodules: recursive
           fetch-depth: 0
 
@@ -42,20 +58,25 @@ jobs:
       - name: Build models package
         run: bun run build:models
 
-      - name: Validate version
+      - name: Determine release metadata
+        id: release
         run: |
-          TAG="${{ github.event.release.tag_name }}"
+          TAG="${{ steps.tag.outputs.TAG_NAME }}"
           # Handle both tag formats
           VERSION="${TAG#@selling-partner-api/models@}"
           VERSION="${VERSION#models-v}"
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+      
+      - name: Validate version
+        run: |
           PACKAGE_VERSION=$(node -p "require('./packages/models/package.json').version")
           
-          if [ "${PACKAGE_VERSION}" != "${VERSION}" ]; then
-            echo "Version mismatch: tag has ${VERSION} but package.json has ${PACKAGE_VERSION}" >&2
+          if [ "${PACKAGE_VERSION}" != "${{ steps.release.outputs.VERSION }}" ]; then
+            echo "Version mismatch: tag has ${{ steps.release.outputs.VERSION }} but package.json has ${PACKAGE_VERSION}" >&2
             exit 1
           fi
           
-          echo "Version validated: ${VERSION}"
+          echo "Version validated: ${{ steps.release.outputs.VERSION }}"
 
       - name: Publish to npm
         env:
