@@ -28,8 +28,7 @@
     "scripts": {
         "clean": "rm -rf dist",
         "generate:limits": "bun run scripts/generate-limits.ts",
-        "sync:models": "bun run scripts/sync-models-dependency.ts",
-        "build": "bun run clean && bun run generate:limits && bun run sync:models && tsc --project tsconfig.build.json",
+        "build": "bun run clean && bun run generate:limits && tsc --project tsconfig.build.json",
         "typecheck": "tsc --noEmit",
         "test": "bunx vitest"
     },
@@ -44,7 +43,7 @@
         }
     },
     "dependencies": {
-        "@selling-partner-api/models": "workspace:*",
+        "@selling-partner-api/models": "^0.4.0",
         "limiter": "^3.0.0",
         "openapi-fetch": "^0.14.0"
     },
