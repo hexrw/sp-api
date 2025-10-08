@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/selling-partner-api/selling-partner-api/compare/sdk-v0.3.1...sdk-v1.0.0) (2025-10-08)
+
+
+### ⚠ BREAKING CHANGES
+
+* **sdk:** SDK now depends on @selling-partner-api/models from npm registry instead of workspace. This fixes broken dependency on models@0.2.0 which does not exist.
+
+### Bug Fixes
+
+* **sdk:** decouple from workspace, use published models@^0.4.0 ([728b368](https://github.com/selling-partner-api/selling-partner-api/commit/728b368546e8b12ab44d97c8952fa2f73d417ebc))
+
 ## [0.3.1](https://github.com/selling-partner-api/selling-partner-api/compare/sdk-v0.3.0...sdk-v0.3.1) (2025-10-08)
 
 
