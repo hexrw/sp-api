@@ -3,6 +3,8 @@
 A fully typed TypeScript client for the Amazon Selling Partner API (SP-API). The SDK mirrors Amazon's OpenAPI definitions, manages Login with Amazon (LWA) authentication, and bundles opinionated helpers for high-traffic endpoints such as Reports and Finances.
 
 > **Server-side only** – SP-API credentials must never be exposed in the browser. Target Node.js ≥ 22 or Bun ≥ 1.2.
+> 
+> **Fully automated** – CI/CD pipeline handles releases, testing, and publishing to npm automatically.
 
 ## Highlights
 
