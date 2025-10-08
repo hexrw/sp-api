@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/selling-partner-api/selling-partner-api/compare/sdk-v0.3.0...sdk-v0.3.1) (2025-10-08)
+
+
+### Bug Fixes
+
+* **sdk:** add CI/CD automation note to README ([f29a79f](https://github.com/selling-partner-api/selling-partner-api/commit/f29a79f217744b8e5c3a64b89d8b3bef2530cb93))
+
 ## [0.3.0](https://github.com/selling-partner-api/selling-partner-api/compare/sdk-v0.2.0...sdk-v0.3.0) (2025-10-07)
 
 
