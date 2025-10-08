@@ -61,8 +61,8 @@ jobs:
       - name: Build packages
         run: bun run build
 
-      - name: Run unit tests with coverage
-        run: bunx vitest run --coverage
+      - name: Run unit tests
+        run: bunx vitest run
 
       - name: Determine release metadata
         id: release
