@@ -1,0 +1,235 @@
+name: update-sdk-on-models-release
+
+# Automatically update SDK when models package is released
+# Detects breaking changes (removed APIs/endpoints)
+# Creates PR with appropriate commit type (feat/fix/BREAKING CHANGE)
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      models_version:
+        description: 'Models version to update to (e.g., 0.4.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-sdk:
+    runs-on: ubuntu-latest
+    # Only run for models releases
+    if: |
+      github.event_name == 'workflow_dispatch' || 
+      (contains(github.event.release.tag_name, 'models') && 
+       (startsWith(github.event.release.tag_name, 'models-v') || 
+        startsWith(github.event.release.tag_name, '@selling-partner-api/models@')))
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Extract models version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.models_version }}"
+          else
+            TAG="${{ github.event.release.tag_name }}"
+            # Extract version from tag (supports both formats)
+            if [[ "$TAG" =~ ^models-v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+              VERSION="${BASH_REMATCH[1]}"
+            elif [[ "$TAG" =~ @([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+              VERSION="${BASH_REMATCH[1]}"
+            else
+              echo "❌ Could not extract version from tag: $TAG"
+              exit 1
+            fi
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "✅ Updating SDK to use models@$VERSION"
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.2.23"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Get current models version
+        id: current
+        run: |
+          CURRENT=$(bun run --silent node -e "console.log(require('./packages/sdk/package.json').dependencies['@selling-partner-api/models'])")
+          # Strip ^ or ~ prefix
+          CURRENT_CLEAN=$(echo "$CURRENT" | sed 's/[\^~]//')
+          echo "version=$CURRENT_CLEAN" >> $GITHUB_OUTPUT
+          echo "Current models version: $CURRENT_CLEAN"
+
+      - name: Check if update needed
+        id: check
+        run: |
+          CURRENT="${{ steps.current.outputs.version }}"
+          NEW="${{ steps.version.outputs.version }}"
+          
+          if [ "$CURRENT" == "$NEW" ]; then
+            echo "needed=false" >> $GITHUB_OUTPUT
+            echo "ℹ️  SDK already uses models@$NEW - no update needed"
+          else
+            echo "needed=true" >> $GITHUB_OUTPUT
+            echo "✅ Update needed: $CURRENT → $NEW"
+          fi
+
+      - name: Detect breaking changes
+        id: breaking
+        if: steps.check.outputs.needed == 'true'
+        run: |
+          # Create a temporary script to detect breaking changes
+          cat > /tmp/detect-breaking.ts << 'EOF'
+          import { readFileSync } from 'fs';
+          import { execSync } from 'child_process';
+          
+          // Install old version temporarily
+          const oldVersion = process.argv[2];
+          console.log(`📦 Installing @selling-partner-api/models@${oldVersion}...`);
+          execSync(`bun add --silent @selling-partner-api/models@${oldVersion}`, { cwd: '/tmp' });
+          
+          // Read old paths
+          const oldPaths = await import(`/tmp/node_modules/@selling-partner-api/models/dist/paths.js`);
+          
+          // Install new version
+          const newVersion = process.argv[3];
+          console.log(`📦 Installing @selling-partner-api/models@${newVersion}...`);
+          execSync(`bun add --silent @selling-partner-api/models@${newVersion}`, { cwd: '/tmp' });
+          
+          // Read new paths
+          const newPaths = await import(`/tmp/node_modules/@selling-partner-api/models/dist/paths.js`);
+          
+          // Compare - check for removed paths
+          const oldPathSet = new Set(Object.keys(oldPaths.paths || {}));
+          const newPathSet = new Set(Object.keys(newPaths.paths || {}));
+          
+          const removedPaths = [...oldPathSet].filter(p => !newPathSet.has(p));
+          
+          if (removedPaths.length > 0) {
+            console.log(`❌ BREAKING CHANGE DETECTED: ${removedPaths.length} paths removed`);
+            console.log('Removed paths:', removedPaths.slice(0, 10).join(', '));
+            process.exit(1);
+          } else {
+            console.log('✅ No breaking changes detected');
+            process.exit(0);
+          }
+          EOF
+          
+          # Run detection script
+          if bun run /tmp/detect-breaking.ts "${{ steps.current.outputs.version }}" "${{ steps.version.outputs.version }}"; then
+            echo "detected=false" >> $GITHUB_OUTPUT
+            echo "✅ No breaking changes detected"
+          else
+            echo "detected=true" >> $GITHUB_OUTPUT
+            echo "⚠️  Breaking changes detected"
+          fi
+
+      - name: Update SDK dependency
+        if: steps.check.outputs.needed == 'true'
+        run: |
+          cd packages/sdk
+          bun add @selling-partner-api/models@^${{ steps.version.outputs.version }}
+          cd ../..
+
+      - name: Run tests
+        if: steps.check.outputs.needed == 'true'
+        run: |
+          cd packages/sdk
+          bun test
+          cd ../..
+
+      - name: Determine commit type
+        id: commit_type
+        if: steps.check.outputs.needed == 'true'
+        run: |
+          CURRENT="${{ steps.current.outputs.version }}"
+          NEW="${{ steps.version.outputs.version }}"
+          
+          if [ "${{ steps.breaking.outputs.detected }}" == "true" ]; then
+            echo "type=breaking" >> $GITHUB_OUTPUT
+            echo "title=feat(sdk)!: update models to $NEW" >> $GITHUB_OUTPUT
+            echo "pr_label=breaking-change" >> $GITHUB_OUTPUT
+          else
+            # Extract major.minor
+            CURRENT_MAJOR=$(echo "$CURRENT" | cut -d. -f1)
+            CURRENT_MINOR=$(echo "$CURRENT" | cut -d. -f2)
+            NEW_MAJOR=$(echo "$NEW" | cut -d. -f1)
+            NEW_MINOR=$(echo "$NEW" | cut -d. -f2)
+            
+            if [ "$NEW_MAJOR" != "$CURRENT_MAJOR" ] || [ "$NEW_MINOR" != "$CURRENT_MINOR" ]; then
+              echo "type=feat" >> $GITHUB_OUTPUT
+              echo "title=feat(sdk): update models to $NEW" >> $GITHUB_OUTPUT
+            else
+              echo "type=fix" >> $GITHUB_OUTPUT
+              echo "title=fix(sdk): update models to $NEW" >> $GITHUB_OUTPUT
+            fi
+            echo "pr_label=enhancement" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.check.outputs.needed == 'true'
+        id: pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: ${{ steps.commit_type.outputs.title }}
+          title: ${{ steps.commit_type.outputs.title }}
+          body: |
+            ## 🤖 Automated Models Dependency Update
+            
+            This PR updates the SDK's dependency on `@selling-partner-api/models`.
+            
+            **Version Update:**
+            - From: `${{ steps.current.outputs.version }}`
+            - To: `${{ steps.version.outputs.version }}`
+            
+            **Breaking Changes:** ${{ steps.breaking.outputs.detected == 'true' && '⚠️ Yes' || '✅ No' }}
+            
+            **Commit Type:** `${{ steps.commit_type.outputs.type }}`
+            
+            **Next Steps:**
+            - If CI passes, this PR will auto-merge
+            - Merge will trigger release-please to create an SDK release PR
+            - SDK release will automatically publish to npm
+            
+            **Note:** Review the [models CHANGELOG](https://github.com/${{ github.repository }}/blob/main/packages/models/CHANGELOG.md) for details on what changed.
+          branch: chore/update-sdk-models-${{ steps.version.outputs.version }}
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
+            ${{ steps.commit_type.outputs.pr_label }}
+
+      - name: Enable auto-merge
+        if: steps.pr.outputs.pull-request-number != ''
+        run: |
+          gh pr merge ${{ steps.pr.outputs.pull-request-number }} --auto --squash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.check.outputs.needed }}" == "true" ]; then
+            echo "✅ SDK update complete - PR created"
+            echo "PR: ${{ steps.pr.outputs.pull-request-url }}"
+            echo "Commit type: ${{ steps.commit_type.outputs.type }}"
+            echo "Breaking: ${{ steps.breaking.outputs.detected }}"
+          else
+            echo "ℹ️  SDK already at latest version - no update needed"
+          fi

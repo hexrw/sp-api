@@ -1,0 +1,153 @@
+name: vendor-sync
+
+# Automatically sync Amazon's Selling Partner API models from vendor submodule
+# Creates PR only when actual changes are detected
+# Auto-merges if tests pass
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Update vendor submodule
+        id: submodule
+        run: |
+          cd vendor/selling-partner-api-models
+          git fetch origin main
+          BEFORE=$(git rev-parse HEAD)
+          git checkout origin/main
+          AFTER=$(git rev-parse HEAD)
+          cd ../..
+          
+          if [ "$BEFORE" != "$AFTER" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "before=$BEFORE" >> $GITHUB_OUTPUT
+            echo "after=$AFTER" >> $GITHUB_OUTPUT
+            echo "✅ Vendor submodule updated from $BEFORE to $AFTER"
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "ℹ️  No changes in vendor submodule"
+          fi
+
+      - name: Check for relevant changes
+        id: check
+        if: steps.submodule.outputs.changed == 'true'
+        run: |
+          cd vendor/selling-partner-api-models
+          
+          # Check if models or schemas directories changed
+          CHANGED_FILES=$(git diff --name-only ${{ steps.submodule.outputs.before }}..${{ steps.submodule.outputs.after }})
+          
+          if echo "$CHANGED_FILES" | grep -E "^(models|schemas)/"; then
+            echo "models_changed=true" >> $GITHUB_OUTPUT
+            echo "✅ Detected changes in models or schemas directories"
+          else
+            echo "models_changed=false" >> $GITHUB_OUTPUT
+            echo "ℹ️  No relevant changes detected (models/schemas unchanged)"
+          fi
+          
+          cd ../..
+
+      - name: Install Bun
+        if: steps.check.outputs.models_changed == 'true'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.2.23"
+
+      - name: Install dependencies
+        if: steps.check.outputs.models_changed == 'true'
+        run: bun install --frozen-lockfile
+
+      - name: Rebuild models package
+        if: steps.check.outputs.models_changed == 'true'
+        run: |
+          cd packages/models
+          bun run build
+          cd ../..
+
+      - name: Check if build produced changes
+        id: build
+        if: steps.check.outputs.models_changed == 'true'
+        run: |
+          if git diff --quiet packages/models/src/; then
+            echo "built_changes=false" >> $GITHUB_OUTPUT
+            echo "ℹ️  Build produced no changes to models package"
+          else
+            echo "built_changes=true" >> $GITHUB_OUTPUT
+            echo "✅ Build produced changes to models package"
+          fi
+
+      - name: Create Pull Request
+        if: steps.build.outputs.built_changes == 'true'
+        id: pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore(models): sync vendor models from Amazon upstream"
+          title: "chore(models): sync vendor models"
+          body: |
+            ## 🤖 Automated Vendor Sync
+            
+            This PR updates the Amazon Selling Partner API models from the vendor submodule.
+            
+            **Vendor Submodule:**
+            - Before: `${{ steps.submodule.outputs.before }}`
+            - After: `${{ steps.submodule.outputs.after }}`
+            
+            **Changes:**
+            - ✅ Vendor submodule updated
+            - ✅ Models rebuilt (`merged.json` and `paths.ts` regenerated)
+            
+            **Next Steps:**
+            - If CI passes, this PR will auto-merge
+            - Merge will trigger release-please to create a models release PR
+            - Models release will automatically publish to npm
+            - SDK will automatically update to use the new models version
+            
+            **Note:** This PR only updates the models package. SDK updates happen automatically after models is published.
+          branch: chore/vendor-sync
+          delete-branch: true
+          labels: |
+            dependencies
+            automated
+
+      - name: Enable auto-merge
+        if: steps.pr.outputs.pull-request-number != ''
+        run: |
+          gh pr merge ${{ steps.pr.outputs.pull-request-number }} --auto --squash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          if [ "${{ steps.build.outputs.built_changes }}" == "true" ]; then
+            echo "✅ Vendor sync complete - PR created"
+            echo "PR: ${{ steps.pr.outputs.pull-request-url }}"
+          elif [ "${{ steps.check.outputs.models_changed }}" == "true" ]; then
+            echo "ℹ️  Vendor changed but build produced no changes - skipped PR"
+          elif [ "${{ steps.submodule.outputs.changed }}" == "true" ]; then
+            echo "ℹ️  Vendor changed but no models/schemas affected - skipped build"
+          else
+            echo "ℹ️  No vendor changes detected - nothing to do"
+          fi

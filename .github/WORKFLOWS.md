@@ -4,12 +4,42 @@ This document describes the automated workflows for the selling-partner-api mono
 
 ## Overview
 
-The repository uses a sophisticated CI/CD pipeline that handles:
-- Automated testing and linting
-- Documentation deployment
-- Independent package releases (models and SDK)
-- Automated dependency updates
-- Upstream API model synchronization
+The repository uses a **fully automated CI/CD pipeline** with 11 production workflows:
+
+**Core Workflows:**
+- ✅ Automated testing and linting on all PRs
+- ✅ Documentation deployment (only when docs change)
+- ✅ Independent package releases (models and SDK)
+- ✅ Auto-merge for release PRs
+
+**Automation Workflows:**
+- 🤖 Daily vendor sync from Amazon's upstream models
+- 🤖 Auto-update SDK when models publishes
+- 🤖 Breaking change detection for API removals
+- 🤖 PR labeling and auto-assignment
+
+**Publishing:**
+- 📦 Dual publishing to npm + GitHub Packages
+- 📦 Supports both manual and automatic triggers
+- 📦 Provenance attestation for supply chain security
+
+## Complete Automation Flow
+
+```
+Daily 2 AM UTC → Vendor Sync → Models Build → PR Created → Tests Pass → Auto-Merge
+                                                                              ↓
+                                                                    Release-Please PR
+                                                                              ↓
+                                                                    Auto-Merge → Publish Models
+                                                                                        ↓
+                                                                              SDK Auto-Update → Tests
+                                                                                        ↓
+                                                                              Release-Please PR
+                                                                                        ↓
+                                                                              Auto-Merge → Publish SDK
+                                                                                        ↓
+                                                                                    ✅ Complete!
+```
 
 ## Workflows
 
@@ -130,33 +160,61 @@ The repository uses a sophisticated CI/CD pipeline that handles:
 
 ---
 
-### 7. Update SDK Models Dependency (`update-sdk-models-dependency.yaml`)
+### 7. Vendor Sync (`vendor-sync.yaml`) 🆕
 
 **Triggers:**
-- Release published event for tags starting with `@selling-partner-api/models@`
-
-**Actions:**
-1. Extract version from models release tag
-2. Update SDK's `@selling-partner-api/models` dependency
-3. Create a PR with the dependency update
-
-**Purpose:** Automatically creates a PR to update the SDK when models releases, triggering the standard PR → release flow.
-
----
-
-### 8. Sync Models (`sync-models.yaml`)
-
-**Triggers:**
-- Scheduled: Daily at 5:00 AM UTC
+- Scheduled: Daily at 2:00 AM UTC
 - Manual workflow dispatch
 
 **Actions:**
-1. Update vendor submodule to latest Amazon API models
-2. Rebuild merged OpenAPI schema
-3. Regenerate SDK artifacts
-4. Create PR with changes
+1. Update vendor submodule from Amazon's upstream repository
+2. Check if `models/` or `schemas/` directories actually changed
+3. Rebuild models package (`merged.json` and `paths.ts`)
+4. Detect if build produced changes
+5. Create PR with conventional commit: `chore(models): sync vendor models`
+6. Enable auto-merge
 
-**Purpose:** Keeps the repository in sync with upstream Amazon Selling Partner API model changes via pull request (not direct push).
+**Smart Detection:**
+- Only creates PR if vendor submodule changed
+- Only builds if `models/` or `schemas/` affected
+- Only creates PR if build produces changes
+
+**Purpose:** Daily automatic synchronization with Amazon's Selling Partner API models, creating a PR only when there are actual changes to review.
+
+---
+
+### 8. Update SDK on Models Release (`update-sdk-on-models-release.yaml`) 🆕
+
+**Triggers:**
+- Release published for models (tags: `models-v*` or `@selling-partner-api/models@*`)
+- Manual workflow dispatch with models version input
+
+**Actions:**
+1. Extract models version from release tag
+2. Check if SDK update is needed
+3. **Detect breaking changes:**
+   - Installs old and new models versions from npm
+   - Compares exported paths
+   - Detects removed API endpoints
+4. Update SDK's models dependency in `package.json`
+5. Determine commit type based on changes:
+   - **Breaking changes** → `feat(sdk)!:` (major version bump)
+   - **Minor update** → `feat(sdk):` (minor version bump)
+   - **Patch update** → `fix(sdk):` (patch version bump)
+6. Create PR with appropriate conventional commit
+7. Enable auto-merge
+
+**Breaking Change Detection:**
+```typescript
+// Compares old vs new paths from models package
+const removedPaths = oldPaths.filter(p => !newPaths.includes(p));
+if (removedPaths.length > 0) {
+  // Breaking change detected!
+  return { breaking: true, removedCount: removedPaths.length };
+}
+```
+
+**Purpose:** Automatically updates SDK when models publishes, with intelligent semantic versioning based on breaking change detection.
 
 ---
 
