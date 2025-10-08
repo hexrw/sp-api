@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/selling-partner-api/selling-partner-api/compare/models-v0.2.0...models-v0.3.0) (2025-10-08)
+
+
+### Features
+
+* **models:** add CI/CD automation notice to README ([73fcb6b](https://github.com/selling-partner-api/selling-partner-api/commit/73fcb6bfde4e12f8f9c0ccd503d4e40ce1de75cc))
+
 ## [0.2.0](https://github.com/selling-partner-api/selling-partner-api/compare/models-v0.1.0...models-v0.2.0) (2025-10-07)
 
 
